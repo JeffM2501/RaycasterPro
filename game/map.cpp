@@ -31,7 +31,7 @@ Map::Map()
     Height = 24;
 
     CellStatus.resize(Width * Height);
-    ClearCellStatus();
+    CellStatus.assign(CellStatus.size(), 0);
 }
 
 uint8_t Map::GetCell(int x, int y) const
@@ -43,23 +43,27 @@ uint8_t Map::GetCell(int x, int y) const
     return Cells[index];
 }
 
-bool Map::CellHit(int x, int y) const
+bool Map::IsCellVis(int x, int y) const
 {
     int index = y * (int)Width + x;
-    if (index < 0 || index >= Cells.size())
-        return 0;
-
-    return CellStatus[index] != 0;
-}
-
-void Map::ClearCellStatus()
-{
-//     for (auto& i : CellStatus)
-//         i = 0;
-    CellStatus.assign(CellStatus.size(), 0);
+    return CellStatus[index] == FrameVisId;
 }
 
 void Map::SetCellVis(int x, int y)
 {
-    CellStatus[GetCellIndex(x, y)] = 1;
+    int index = y * (int)Width + x;
+    uint8_t& id = CellStatus[index];
+    if (id == FrameVisId)
+        return;
+
+    id = FrameVisId;
+    HitCells.push_back(index);
+}
+
+void Map::StartFrame()
+{
+    for (const auto& i : HitCells)
+        CellStatus[i] = 0;
+
+    HitCells.clear();
 }

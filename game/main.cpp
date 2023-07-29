@@ -38,7 +38,7 @@
 Map WorldMap;
 
 // how big each map grid is in pixels for the top view
-constexpr uint8_t MapPixelSize = 24;
+constexpr uint8_t MapPixelSize = 8;
 
 RenderTexture MapRenderTexture;	// render texture for the top view
 RenderTexture ViewRenderTexture; // render texture for the 3d view
@@ -46,7 +46,7 @@ RenderTexture ViewRenderTexture; // render texture for the 3d view
 Texture2D WallTexture = { 0 };
 
 // 3d view size
-constexpr uint16_t ViewWidth = 256*4;
+constexpr uint16_t ViewWidth = 256*6;
 constexpr uint16_t ViewHeight = 192*4;
 
 float ViewFOVX = 66.6f;
@@ -273,7 +273,7 @@ void UpdateRayset()
 //     HitCells.clear();
 //     HitCells.insert(WorldMap.GetCellIndex(int(PlayerPos.x), int(PlayerPos.y)));
 
-    WorldMap.ClearCellStatus();
+    WorldMap.StartFrame();
     WorldMap.SetCellVis(int(PlayerPos.x), int(PlayerPos.y));
 
     for (uint16_t i = 0; i < ViewWidth; i++)
@@ -325,6 +325,9 @@ void DrawRayset(const Vector2& playerPos, float scale)
 
 void DrawMapTopView()
 {
+    if (MapPixelSize == 0)
+        return;
+
     BeginTextureMode(MapRenderTexture);
     ClearBackground(DARKGRAY);
 
@@ -335,7 +338,7 @@ void DrawMapTopView()
         {
            // int index = WorldMap.GetCellIndex(x,y);
 
-            bool hit = WorldMap.CellHit(x, y);//.find(index) != HitCells.end();
+            bool hit = WorldMap.IsCellVis(x, y);//.find(index) != HitCells.end();
             if (WorldMap.GetCell(x, y) != 0)
                 DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, hit ? PURPLE : WHITE);
             else if (hit)
@@ -455,7 +458,12 @@ void GetCellTypeUs(uint8_t cellType, float& uStart, float& uEnd)
     uEnd /= WallTexture.width;
 }
 
-void DrawCellFloor(float x, float y)
+void rlVertex3if(int x, int y, float z)
+{
+    rlVertex3f(float(x), float(y), z);
+}
+
+void DrawCellFloor(int x, int y)
 {
     float uStart = 0;
     float uEnd = 1;
@@ -469,21 +477,21 @@ void DrawCellFloor(float x, float y)
     rlNormal3f(0, 0, 1);
 
     rlTexCoord2f(uStart, 0);
-    rlVertex3f(x, y, 0);
+    rlVertex3if(x, y, 0);
 
     rlTexCoord2f(uEnd, 0);
-    rlVertex3f(x+1, y, 0);
+    rlVertex3if(x+1, y, 0);
 
     rlTexCoord2f(uEnd, 1);
-    rlVertex3f(x + 1, y+1, 0);
+    rlVertex3if(x + 1, y+1, 0);
 
     rlTexCoord2f(uStart,1);
-    rlVertex3f(x, y+1, 0);
+    rlVertex3if(x, y+1, 0);
 
     rlEnd();
 }
 
-void DrawCellCeiling(float x, float y)
+void DrawCellCeiling(int x, int y)
 {
     float uStart = 0;
     float uEnd = 1;
@@ -497,21 +505,21 @@ void DrawCellCeiling(float x, float y)
     rlNormal3f(0, 0, 1);
 
     rlTexCoord2f(uStart, 0);
-    rlVertex3f(x, y, 1);
+    rlVertex3if(x, y, 1);
 
     rlTexCoord2f(uStart, 1);
-    rlVertex3f(x, y + 1, 1);
+    rlVertex3if(x, y + 1, 1);
 
     rlTexCoord2f(uEnd, 1);
-    rlVertex3f(x + 1, y + 1, 1);
+    rlVertex3if(x + 1, y + 1, 1);
 
     rlTexCoord2f(uEnd, 0);
-    rlVertex3f(x + 1, y, 1);
+    rlVertex3if(x + 1, y, 1);
 
     rlEnd();
 }
 
-void DrawCellWall(float x, float y, uint8_t cellType)
+void DrawCellWall(int x, int y, uint8_t cellType)
 {
     float uStart = 0;
     float uEnd = 1;
@@ -524,7 +532,7 @@ void DrawCellWall(float x, float y, uint8_t cellType)
     rlBegin(RL_QUADS);
     Color tint = WHITE;
 
-    if (WorldMap.GetCell(int(x), int(y + 1)) == 0)
+    if (WorldMap.GetCell(x, y + 1) == 0)
     {
         FaceCount++;
         // north
@@ -534,20 +542,20 @@ void DrawCellWall(float x, float y, uint8_t cellType)
         rlNormal3f(0, 1, 0);
 
         rlTexCoord2f(uStart, 1);
-        rlVertex3f(x + 1, y + 1, 0);
+        rlVertex3if(x + 1, y + 1, 0);
 
         rlTexCoord2f(uEnd, 1);
-        rlVertex3f(x, y + 1, 0);
+        rlVertex3if(x, y + 1, 0);
 
         rlTexCoord2f(uEnd, 0);
-        rlVertex3f(x, y + 1, 1);
+        rlVertex3if(x, y + 1, 1);
 
         rlTexCoord2f(uStart, 0);
-        rlVertex3f(x + 1, y + 1, 1);
+        rlVertex3if(x + 1, y + 1, 1);
     }
 
     // south
-    if (WorldMap.GetCell(int(x), int(y - 1)) == 0)
+    if (WorldMap.GetCell(x, y - 1) == 0)
     {
         FaceCount++;
 
@@ -556,20 +564,20 @@ void DrawCellWall(float x, float y, uint8_t cellType)
         rlNormal3f(0, -1, 0);
 
         rlTexCoord2f(uStart, 1);
-        rlVertex3f(x + 1, y, 0);
+        rlVertex3if(x + 1, y, 0);
 
         rlTexCoord2f(uStart, 0);
-        rlVertex3f(x + 1, y, 1);
+        rlVertex3if(x + 1, y, 1);
 
         rlTexCoord2f(uEnd, 0);
-        rlVertex3f(x, y, 1);
+        rlVertex3if(x, y, 1);
 
         rlTexCoord2f(uEnd, 1);
-        rlVertex3f(x, y, 0);
+        rlVertex3if(x, y, 0);
     }
 
     // east
-    if (WorldMap.GetCell(int(x + 1), int(y)) == 0)
+    if (WorldMap.GetCell(x + 1, y) == 0)
     {
         FaceCount++;
         tint = wallColors[2];
@@ -577,20 +585,20 @@ void DrawCellWall(float x, float y, uint8_t cellType)
         rlNormal3f(1, 0, 0);
 
         rlTexCoord2f(uStart, 1);
-        rlVertex3f(x + 1, y, 0);
+        rlVertex3if(x + 1, y, 0);
 
         rlTexCoord2f(uEnd, 1);
-        rlVertex3f(x + 1, y + 1, 0);
+        rlVertex3if(x + 1, y + 1, 0);
 
         rlTexCoord2f(uEnd, 0);
-        rlVertex3f(x + 1, y + 1, 1);
+        rlVertex3if(x + 1, y + 1, 1);
 
         rlTexCoord2f(uStart, 0);
-        rlVertex3f(x + 1, y, 1);
+        rlVertex3if(x + 1, y, 1);
     }
 
     // west
-    if (WorldMap.GetCell(int(x - 1), int(y)) == 0)
+    if (WorldMap.GetCell(x - 1, y) == 0)
     {
         FaceCount++;
         tint = wallColors[3];
@@ -598,16 +606,16 @@ void DrawCellWall(float x, float y, uint8_t cellType)
         rlNormal3f(-1, 0, 0);
 
         rlTexCoord2f(uStart, 1);
-        rlVertex3f(x, y, 0);
+        rlVertex3if(x, y, 0);
 
         rlTexCoord2f(uStart, 0);
-        rlVertex3f(x, y, 1);
+        rlVertex3if(x, y, 1);
 
         rlTexCoord2f(uEnd, 0);
-        rlVertex3f(x, y + 1, 1);
+        rlVertex3if(x, y + 1, 1);
 
         rlTexCoord2f(uEnd, 1);
-        rlVertex3f(x, y + 1, 0);
+        rlVertex3if(x, y + 1, 0);
     }
 
     rlEnd();
@@ -635,28 +643,24 @@ void DrawView3D()
     FaceCount = 0;
 
     // fill the map with cells
-    for (uint8_t y = 0; y < WorldMap.GetHeight(); y++)
+
+    int x;
+    int y;
+
+    for (const auto& i : WorldMap.GetHitCellCountList())
     {
-        for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
+        WorldMap.GetCellXY(i, x, y);
+
+        uint8_t cellType = WorldMap.GetCell(x, y);
+
+        if (cellType == 0)
         {
-            if (!WorldMap.CellHit(x,y))
-                continue;
-
-//             int index = WorldMap.GetCellIndex(x, y);
-//             if (HitCells.find(index) == HitCells.end())
-//                 continue;
-
-            uint8_t cellType = WorldMap.GetCell(x, y);
-
-            if (cellType == 0)
-            {
-                DrawCellFloor(x, y);
-                DrawCellCeiling(x, y);
-            }
-            else
-            {
-                DrawCellWall(x, y, cellType);
-            }
+            DrawCellFloor(x, y);
+            DrawCellCeiling(x, y);
+        }
+        else
+        {
+            DrawCellWall(x, y, cellType);
         }
     }
 
