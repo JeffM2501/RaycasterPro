@@ -38,16 +38,19 @@
 Map WorldMap;
 
 // how big each map grid is in pixels for the top view
-constexpr uint8_t MapPixelSize = 10;
+constexpr uint8_t MapPixelSize = 20;
 
 RenderTexture MapRenderTexture;	// render texture for the top view
 
 Texture2D WallTexture = { 0 };
+Texture2D GunTexture = { 0 };
 
 // 3d view size
 
 //float ViewFOVX = 66.6f;
 float ViewFOVY = 40;
+
+Vector2 GunBobble = { 0,0 };
 
 float GetFOVX(float fovY)
 {
@@ -359,7 +362,6 @@ void DrawMapTopView()
     DrawLine(MapPixelSize / 4, MapPixelSize / 4, MapPixelSize, MapPixelSize / 4, RED);
     DrawLine(MapPixelSize / 4, MapPixelSize / 4, MapPixelSize / 4, MapPixelSize, GREEN);
 
-
     EndTextureMode();
 }
 
@@ -607,6 +609,9 @@ void UpdateMovement()
     float rotationSpeed = 180.0f * DEG2RAD * GetFrameTime();
     float movementSpeed = 5.0f * GetFrameTime();
 
+    if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT))
+        movementSpeed *= 2;
+
     // compute a rotation for this frame
     float rotation = 0;
 
@@ -624,35 +629,78 @@ void UpdateMovement()
     CameraPlane = Vector2Rotate(CameraPlane, rotation);
 
     // compute a new position based on movement
-    Vector2 newPos = PlayerPos;
+    Vector2 newVec = { 0,0 };
 
     // the vector that is to the left
     Vector2 sideStepVector = { -PlayerFacing.y, PlayerFacing.x };
 
     // move the new pos based on keys
     if (IsKeyDown(KEY_W))
-        newPos = Vector2Add(newPos, Vector2Scale(PlayerFacing, movementSpeed));
+        newVec = Vector2Add(newVec, Vector2Scale(PlayerFacing, movementSpeed));
 
     if (IsKeyDown(KEY_S))
-        newPos = Vector2Add(newPos, Vector2Scale(PlayerFacing, -movementSpeed));
+        newVec = Vector2Add(newVec, Vector2Scale(PlayerFacing, -movementSpeed));
 
     if (IsKeyDown(KEY_A))
-        newPos = Vector2Add(newPos, Vector2Scale(sideStepVector, movementSpeed));
+        newVec = Vector2Add(newVec, Vector2Scale(sideStepVector, movementSpeed));
 
     if (IsKeyDown(KEY_D))
-        newPos = Vector2Add(newPos, Vector2Scale(sideStepVector, -movementSpeed));
+        newVec = Vector2Add(newVec, Vector2Scale(sideStepVector, -movementSpeed));
 
+    if (Vector2LengthSqr(newVec) > 0)
+    {
+        GunBobble.y += GetFrameTime();
+        GunBobble.x += GetFrameTime();
+    }
+
+    Vector2 newPos = Vector2Add(PlayerPos, newVec);
     // if the new pos is not inside the world, allow the player to move there
     if (GetMapGrid(newPos) == 0)
         PlayerPos = newPos;
 }
 
+void DrawGun()
+{
+    Rectangle sourceRect = { 0,0,GunTexture.width,GunTexture.height };
+
+    float scale = 4;
+
+    Rectangle destRect = { GetScreenWidth() / 2,GetScreenHeight(), GunTexture.width * scale, GunTexture.height * scale };
+
+    Vector2 origin = { (destRect.width / 2) - 20 + sinf(GunBobble.x * 5) * 20, destRect.height - 20 + sinf(GunBobble.y * 10) * 10};
+
+    DrawTexturePro(GunTexture, sourceRect, destRect, origin, 0, WHITE);
+
+    DrawLine(GetScreenWidth() / 2, GetScreenHeight() / 2 + 10, GetScreenWidth() / 2, GetScreenHeight() / 2 - 10, ColorAlpha(WHITE, 0.5f));
+    DrawLine(GetScreenWidth() / 2+10, GetScreenHeight() / 2, GetScreenWidth() / 2-10, GetScreenHeight() / 2, ColorAlpha(WHITE, 0.5f));
+}
+
+void DrawMiniMap()
+{
+    Rectangle mapRect = { 0, 0, 300, 300 };
+    mapRect.x = GetScreenWidth() - mapRect.width;
+    mapRect.y = 0;
+
+    DrawRectangleRec(mapRect, ColorAlpha(BLACK, 0.5f));
+
+    Rectangle destRect = { mapRect.x + mapRect.width/2, mapRect.y + mapRect.height / 2, MapRenderTexture.texture.width, MapRenderTexture.texture.height };
+
+	BeginScissorMode(mapRect.x, mapRect.y, mapRect.width, mapRect.height);
+
+	Rectangle sourceRect = { 0, 0, MapRenderTexture.texture.width, MapRenderTexture.texture.height };
+	Vector2 offset = { (PlayerPos.x * MapPixelSize), MapRenderTexture.texture.height - (PlayerPos.y * MapPixelSize) };
+ 
+ 	// Note that this render texture is NOT flipped in Y, so that the view has Y be up not down
+ 	DrawTexturePro(MapRenderTexture.texture, sourceRect, destRect, offset, 0, WHITE);
+    EndScissorMode();
+}
+
 int main()
 {
     // set up the window
-  //  SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(1800, 900, "RaycasterPro Example");
-  //  SetTargetFPS(500);
+    SetConfigFlags(FLAG_VSYNC_HINT);
+    InitWindow(1600, 900, "RaycasterPro Example");
+    SetTargetFPS(350);
 
     RaySet.resize(GetScreenWidth());
     SetupCameraPlane();
@@ -663,6 +711,10 @@ int main()
     WallTexture = LoadTexture("resources/textures/textures.png");
     GenTextureMipmaps(&WallTexture);
     SetTextureFilter(WallTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+
+    // texture for the gun
+    GunTexture = LoadTexture("resources/textures/gun.png");
+    SetTextureFilter(WallTexture, TEXTURE_FILTER_POINT);
 
     float angle = atan2f(CameraPlane.y, CameraPlane.x) * RAD2DEG;
 
@@ -685,8 +737,9 @@ int main()
 
         DrawView3D();
 
-        // Note that this render texture is NOT flipped in Y, so that the view has Y be up not down
-        DrawTexture(MapRenderTexture.texture, GetScreenWidth() - MapRenderTexture.texture.width, 0, ColorAlpha(WHITE, 0.5f));
+        DrawGun();
+
+        DrawMiniMap();
 
         // text overlay
         DrawRectangle(0, 0, 450, 50, ColorAlpha(BLACK, 0.25f));
