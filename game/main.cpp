@@ -38,29 +38,27 @@
 Map WorldMap;
 
 // how big each map grid is in pixels for the top view
-constexpr uint8_t MapPixelSize = 8;
+constexpr uint8_t MapPixelSize = 10;
 
 RenderTexture MapRenderTexture;	// render texture for the top view
-RenderTexture ViewRenderTexture; // render texture for the 3d view
 
 Texture2D WallTexture = { 0 };
 
 // 3d view size
-constexpr uint16_t ViewWidth = 256*6;
-constexpr uint16_t ViewHeight = 192*4;
 
-float ViewFOVX = 66.6f;
+//float ViewFOVX = 66.6f;
+float ViewFOVY = 40;
 
 float GetFOVX(float fovY)
 {
-    float aspectRatio = ViewWidth / (float)ViewHeight;
+    float aspectRatio = GetScreenWidth() / (float)GetScreenHeight();
 
-    return 2.0f * atanf(tanf(fovY * 0.5f) * aspectRatio);
+    return 2.0f * atanf(tanf(fovY * DEG2RAD * 0.5f) * aspectRatio) * RAD2DEG;
 }
 
 float GetFOVY(float fovX)
 {
-    float aspectRatio = ViewWidth / (float)ViewHeight;
+    float aspectRatio = GetScreenWidth() / (float)GetScreenHeight();
     float halfwidth = tanf(fovX * DEG2RAD / 2);
     return 2 * atanf(halfwidth / aspectRatio) * RAD2DEG;
 }
@@ -69,9 +67,14 @@ Vector2 PlayerPos = { 4.5f,  2.5f };
 Vector2 PlayerFacing = { 1, 0 };
 Vector2 CameraPlane = { 0, -0.66f };	// the 2d equivalent of a camera plane, rotates with the player
 
-// flag to control if textures are used
-bool DrawFlatShaded = false;
+void SetupCameraPlane()
+{
+    float fovX = GetFOVX(ViewFOVY);
+    CameraPlane.y = -tanf(fovX * DEG2RAD * 0.5f);
+    CameraPlane.x = 0;
+}
 
+// some stats
 int CastCount = 0;
 int FaceCount = 0;
 
@@ -103,10 +106,7 @@ struct RayResult
 };
 
 // the rays that make up the view. This is a fixed size array based on the render view's width (one for each pixel in X)
-RayResult RaySet[ViewWidth] = { 0 };
-
-//std::set<int> HitCells;
-
+std::vector<RayResult> RaySet;
 
 // get the grid for map coordinate
 uint8_t GetMapGrid(uint8_t x, uint8_t y)
@@ -206,7 +206,6 @@ void CastRay(RayResult& ray)
             hit = true;
 
         WorldMap.SetCellVis(mapX, mapY);
-      //  HitCells.insert(ray.HitCellIndex);
     }
 
     if (!hit)
@@ -249,7 +248,7 @@ bool CastRayPair(int minPixel, int maxPixel)
 
     if (minRay.HitCellIndex < 0)
     {
-        cameraX = 2 * minPixel / (float)ViewWidth - 1; //x-coordinate in camera space
+        cameraX = 2 * minPixel / (float)GetScreenWidth() - 1; //x-coordinate in camera space
         minRay.Directon.x = PlayerFacing.x + CameraPlane.x * cameraX;
         minRay.Directon.y = PlayerFacing.y + CameraPlane.y * cameraX;
         CastRay(minRay);
@@ -257,7 +256,7 @@ bool CastRayPair(int minPixel, int maxPixel)
 
     if (maxRay.HitCellIndex < 0)
     {
-        cameraX = 2 * maxPixel / (float)ViewWidth - 1; //x-coordinate in camera space
+        cameraX = 2 * maxPixel / (float)GetScreenWidth() - 1; //x-coordinate in camera space
         maxRay.Directon.x = PlayerFacing.x + CameraPlane.x * cameraX;
         maxRay.Directon.y = PlayerFacing.y + CameraPlane.y * cameraX;
 
@@ -270,20 +269,17 @@ bool CastRayPair(int minPixel, int maxPixel)
 // compute the rays for the current view
 void UpdateRayset()
 {
-//     HitCells.clear();
-//     HitCells.insert(WorldMap.GetCellIndex(int(PlayerPos.x), int(PlayerPos.y)));
-
     WorldMap.StartFrame();
     WorldMap.SetCellVis(int(PlayerPos.x), int(PlayerPos.y));
 
-    for (uint16_t i = 0; i < ViewWidth; i++)
+    for (uint16_t i = 0; i < GetScreenWidth(); i++)
         RaySet[i].HitCellIndex = -1;
 
     size_t index = 0;
     std::vector<std::pair<int, int>> pendingCasts;
 
-    pendingCasts.reserve(ViewWidth);
-    pendingCasts.emplace_back(0, ViewWidth-1);
+    pendingCasts.reserve(GetScreenWidth());
+    pendingCasts.emplace_back(0, GetScreenWidth() - 1);
 
     while (index < pendingCasts.size())
     {
@@ -311,7 +307,7 @@ void DrawRayset(const Vector2& playerPos, float scale)
 {
     CastCount = 0;
 
-    for (uint16_t i = 0; i < ViewWidth; i++)
+    for (uint16_t i = 0; i < GetScreenWidth(); i++)
     {
         RayResult& ray = RaySet[i];
 
@@ -336,9 +332,7 @@ void DrawMapTopView()
     {
         for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
         {
-           // int index = WorldMap.GetCellIndex(x,y);
-
-            bool hit = WorldMap.IsCellVis(x, y);//.find(index) != HitCells.end();
+            bool hit = WorldMap.IsCellVis(x, y);
             if (WorldMap.GetCell(x, y) != 0)
                 DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, hit ? PURPLE : WHITE);
             else if (hit)
@@ -393,62 +387,6 @@ float GetRayU(const RayResult& ray)
 }
 
 // draw the 3d view
-void DrawView()
-{
-    BeginTextureMode(ViewRenderTexture);
-
-    // fill the texture with the ceiling color
-    ClearBackground(DARKGRAY);
-
-    // the middle of the screen
-    int middle = ViewRenderTexture.texture.height / 2;
-
-    // fill half the screen with the ground color
-    DrawRectangle(0, middle, ViewRenderTexture.texture.width, middle, DARKBROWN);
-
-    // an array of colors to use to tint each wall a different color based on direction
-    static Color wallColors[4] = { WHITE, Color{128,128,128,255}, Color{196,196,196,255} , Color{200,200,200,255} };
-
-    // for each ray in our rayset
-    for (uint16_t i = 0; i < ViewWidth; i++)
-    {
-        const RayResult& ray = RaySet[i];
-
-        if (ray.Distance < 0)
-            continue;
-
-        // use the distance to compute how high the wall will be
-        int lineHeight = (int)(ViewRenderTexture.texture.height / ray.Distance);
-
-        // get our tint based on what side of a grid the ray hit
-        Color tint = wallColors[uint8_t(ray.Normal)];
-
-        if (DrawFlatShaded || WallTexture.id == 0)
-        {
-            // draw a line from the center for this X column 
-            DrawLine(i, middle - lineHeight / 2, i, middle + lineHeight / 2, tint);
-        }
-        else
-        {
-            // get the U coordinate of this ray (where on the texture it hits in x)
-            float u = GetRayU(ray);
-
-            // find the start of the texture for this grid type
-            float uStart = WallTexture.height * (ray.HitGridType - 1.0f);
-
-            // compute a source rect for a single strip of texture we want to draw for this pixel
-            Rectangle sourceRect{ uStart + (u * WallTexture.height), 0, 0, float(WallTexture.height) };
-
-            // compute where on the screen this column is going to be drawn
-            Rectangle destRect{ float(i), middle - lineHeight / 2.0f, 1.0f,  float(lineHeight) };
-
-            DrawTexturePro(WallTexture, sourceRect, destRect, Vector2Zero(), 0, tint);
-        }
-    }
-
-    EndTextureMode();
-}
-
 void GetCellTypeUs(uint8_t cellType, float& uStart, float& uEnd)
 {
     uStart = float(WallTexture.height * (cellType - 1));
@@ -625,7 +563,7 @@ void DrawCellWall(int x, int y, uint8_t cellType)
 void DrawView3D()
 {
     Camera3D camera = { 0 };
-    camera.fovy = GetFOVY(ViewFOVX);
+    camera.fovy = ViewFOVY;
     camera.up.z = 1;
     camera.position.x = PlayerPos.x;
     camera.position.y = PlayerPos.y;
@@ -635,17 +573,12 @@ void DrawView3D()
     camera.target.y = PlayerPos.y + PlayerFacing.y;
     camera.target.z = 0.5f;
 
-    BeginTextureMode(ViewRenderTexture);
-
-    ClearBackground(DARKGRAY);
-
     BeginMode3D(camera);
     FaceCount = 0;
 
     // fill the map with cells
-
-    int x;
-    int y;
+    int x = -1;
+    int y = -1;
 
     for (const auto& i : WorldMap.GetHitCellCountList())
     {
@@ -665,7 +598,6 @@ void DrawView3D()
     }
 
     EndMode3D();
-    EndTextureMode();
 }
 
 // move the player around the map
@@ -719,29 +651,24 @@ int main()
 {
     // set up the window
   //  SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(1800, 900, "Raycaster Example");
+    InitWindow(1800, 900, "RaycasterPro Example");
   //  SetTargetFPS(500);
 
+    RaySet.resize(GetScreenWidth());
+    SetupCameraPlane();
     // load render textures for the top view and 3d view
     MapRenderTexture = LoadRenderTexture(int(WorldMap.GetWidth() * MapPixelSize), int(WorldMap.GetHeight() * MapPixelSize));
-    ViewRenderTexture = LoadRenderTexture(ViewWidth, ViewHeight);
 
     // textures for our walls
     WallTexture = LoadTexture("resources/textures/textures.png");
     GenTextureMipmaps(&WallTexture);
     SetTextureFilter(WallTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
 
-  //  SetTextureFilter(WallTexture, TEXTURE_FILTER_POINT);
-
     float angle = atan2f(CameraPlane.y, CameraPlane.x) * RAD2DEG;
 
     // game loop
     while (!WindowShouldClose())
     {
-        // let the user toggle flat shaded or not
-        if (IsKeyPressed(KEY_SPACE))
-            DrawFlatShaded = !DrawFlatShaded;
-
         // move the player
         UpdateMovement();
 
@@ -752,41 +679,19 @@ int main()
         // update the top view render texture
         DrawMapTopView();
 
-        // draw the 3d view to it's low res render texture
-     //   DrawView();
-        DrawView3D();
-
         // Draw the results to the screen
         BeginDrawing();
         ClearBackground(BLACK);
 
-        // draw the top view texture to the screen.
+        DrawView3D();
+
         // Note that this render texture is NOT flipped in Y, so that the view has Y be up not down
-        DrawTexture(MapRenderTexture.texture, 0, GetScreenHeight() / 2 - MapRenderTexture.texture.height / 2, WHITE);
-
-        // figure out how much is left for the 3d view
-        Rectangle viewArea = { float(MapRenderTexture.texture.width), 0, float(GetScreenWidth() - MapRenderTexture.texture.width), float(GetScreenHeight()) };
-
-        // fill the view area
-        DrawRectangleRec(viewArea, BLACK);
-
-        // figure how many times we can scale the 3d view to fit, but keep it an whole factor
-        float scaleFactor = 1;
-
-        scaleFactor = floorf(viewArea.width / ViewWidth);
-
-        float renderHeight = ViewHeight * scaleFactor;
-        float renderWidth = ViewWidth * scaleFactor;
-
-        // center the texture in the view area
-        Rectangle destRect = { viewArea.x + viewArea.width / 2 - renderWidth / 2, viewArea.height / 2 - renderHeight / 2, renderWidth,renderHeight };
-
-        DrawTexturePro(ViewRenderTexture.texture, Rectangle{ 0,0,ViewWidth, -ViewHeight }, destRect, Vector2Zero(), 0, WHITE);
+        DrawTexture(MapRenderTexture.texture, GetScreenWidth() - MapRenderTexture.texture.width, 0, ColorAlpha(WHITE, 0.5f));
 
         // text overlay
+        DrawRectangle(0, 0, 450, 50, ColorAlpha(BLACK, 0.25f));
         DrawFPS(2, 0);
         DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", PlayerPos.x, PlayerPos.y, CastCount, FaceCount), 2, 20, 20, WHITE);
-        DrawText("Space to toggle shaded vs textures", 2, 40, 20, WHITE);
 
         EndDrawing();
     }
@@ -794,7 +699,6 @@ int main()
     // cleanup
     UnloadTexture(WallTexture);
     UnloadRenderTexture(MapRenderTexture);
-    UnloadRenderTexture(ViewRenderTexture);
 
     CloseWindow();
     return 0;
