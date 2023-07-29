@@ -20,9 +20,14 @@ public:
     void ClearCellStatus();
     void SetCellVis(int x, int y);
 
+    inline size_t GetHitCellCount() const { return HitCells.size(); }
+    inline const size_t* GetHitCellCountStart() const { return &HitCells.front(); }
+
 protected:
     size_t Width = 0;
     size_t Height = 0;
     std::vector<int8_t> Cells;
     std::vector<int8_t> CellStatus;
+
+    std::vector<size_t> HitCells;
 };

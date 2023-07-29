@@ -49,11 +49,13 @@ bool Map::CellHit(int x, int y) const
     if (index < 0 || index >= Cells.size())
         return 0;
 
-    CellStatus[index] != 0;
+    return CellStatus[index] != 0;
 }
 
 void Map::ClearCellStatus()
 {
+//     for (auto& i : CellStatus)
+//         i = 0;
     CellStatus.assign(CellStatus.size(), 0);
 }
 

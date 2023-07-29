@@ -105,7 +105,7 @@ struct RayResult
 // the rays that make up the view. This is a fixed size array based on the render view's width (one for each pixel in X)
 RayResult RaySet[ViewWidth] = { 0 };
 
-std::set<int> HitCells;
+//std::set<int> HitCells;
 
 
 // get the grid for map coordinate
@@ -205,7 +205,8 @@ void CastRay(RayResult& ray)
         if (ray.HitGridType != 0)
             hit = true;
 
-        HitCells.insert(ray.HitCellIndex);
+        WorldMap.SetCellVis(mapX, mapY);
+      //  HitCells.insert(ray.HitCellIndex);
     }
 
     if (!hit)
@@ -269,16 +270,20 @@ bool CastRayPair(int minPixel, int maxPixel)
 // compute the rays for the current view
 void UpdateRayset()
 {
-    HitCells.clear();
-    HitCells.insert(WorldMap.GetCellIndex(int(PlayerPos.x), int(PlayerPos.y)));
+//     HitCells.clear();
+//     HitCells.insert(WorldMap.GetCellIndex(int(PlayerPos.x), int(PlayerPos.y)));
+
+    WorldMap.ClearCellStatus();
+    WorldMap.SetCellVis(int(PlayerPos.x), int(PlayerPos.y));
+
     for (uint16_t i = 0; i < ViewWidth; i++)
         RaySet[i].HitCellIndex = -1;
 
     size_t index = 0;
     std::vector<std::pair<int, int>> pendingCasts;
 
+    pendingCasts.reserve(ViewWidth);
     pendingCasts.emplace_back(0, ViewWidth-1);
-
 
     while (index < pendingCasts.size())
     {
@@ -328,9 +333,9 @@ void DrawMapTopView()
     {
         for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
         {
-            int index = WorldMap.GetCellIndex(x,y);
+           // int index = WorldMap.GetCellIndex(x,y);
 
-            bool hit = HitCells.find(index) != HitCells.end();
+            bool hit = WorldMap.CellHit(x, y);//.find(index) != HitCells.end();
             if (WorldMap.GetCell(x, y) != 0)
                 DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, hit ? PURPLE : WHITE);
             else if (hit)
@@ -634,9 +639,12 @@ void DrawView3D()
     {
         for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
         {
-            int index = WorldMap.GetCellIndex(x, y);
-            if (HitCells.find(index) == HitCells.end())
+            if (!WorldMap.CellHit(x,y))
                 continue;
+
+//             int index = WorldMap.GetCellIndex(x, y);
+//             if (HitCells.find(index) == HitCells.end())
+//                 continue;
 
             uint8_t cellType = WorldMap.GetCell(x, y);
 
@@ -648,9 +656,6 @@ void DrawView3D()
             else
             {
                 DrawCellWall(x, y, cellType);
-
-                //             Vector3 pos = { x + 0.5f,y + 0.5f,0.5f };
-                //             DrawCubeWires(pos, 1, 1, 1, WHITE);
             }
         }
     }
