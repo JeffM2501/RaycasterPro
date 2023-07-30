@@ -28,11 +28,11 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "rlgl.h"
 
 #include "map.h"
 #include "raycaster.h"
 #include "mini_map.h"
+#include "view_render.h"
 
 #include <stdint.h>
 #include <set>
@@ -42,7 +42,7 @@ Map WorldMap;
 // how big each map grid is in pixels for the top view
 constexpr uint8_t MapPixelSize = 20;
 
-Texture2D WallTexture = { 0 };
+
 Texture2D GunTexture = { 0 };
 Texture2D CrosshairTexture = { 0 };
 
@@ -60,217 +60,6 @@ float GetFOVX(float fovY)
 
 Vector2 PlayerPos = { 4.5f,  2.5f };
 Vector2 PlayerFacing = { 1, 0 };
-
-// some stats
-int FaceCount = 0;
-
-// draw the 3d view
-void GetCellTypeUs(uint8_t cellType, float& uStart, float& uEnd)
-{
-    uStart = float(WallTexture.height * (cellType - 1));
-    uEnd = uStart + WallTexture.height - 1;
-
-    uStart /= WallTexture.width;
-    uEnd /= WallTexture.width;
-}
-
-void rlVertex3if(int x, int y, float z)
-{
-    rlVertex3f(float(x), float(y), z);
-}
-
-void DrawCellFloor(int x, int y)
-{
-    float uStart = 0;
-    float uEnd = 1;
-    FaceCount++;
-    GetCellTypeUs(8, uStart, uEnd);
-
-    rlSetTexture(WallTexture.id);
-
-    rlBegin(RL_QUADS);
-    rlColor4ub(255, 255, 255, 255);
-    rlNormal3f(0, 0, 1);
-
-    rlTexCoord2f(uStart, 0);
-    rlVertex3if(x, y, 0);
-
-    rlTexCoord2f(uEnd, 0);
-    rlVertex3if(x+1, y, 0);
-
-    rlTexCoord2f(uEnd, 1);
-    rlVertex3if(x + 1, y+1, 0);
-
-    rlTexCoord2f(uStart,1);
-    rlVertex3if(x, y+1, 0);
-
-    rlEnd();
-}
-
-void DrawCellCeiling(int x, int y)
-{
-    float uStart = 0;
-    float uEnd = 1;
-    FaceCount++;
-    GetCellTypeUs(8, uStart, uEnd);
-
-    rlSetTexture(WallTexture.id);
-
-    rlBegin(RL_QUADS);
-    rlColor4ub(255, 255, 255, 255);
-    rlNormal3f(0, 0, 1);
-
-    rlTexCoord2f(uStart, 0);
-    rlVertex3if(x, y, 1);
-
-    rlTexCoord2f(uStart, 1);
-    rlVertex3if(x, y + 1, 1);
-
-    rlTexCoord2f(uEnd, 1);
-    rlVertex3if(x + 1, y + 1, 1);
-
-    rlTexCoord2f(uEnd, 0);
-    rlVertex3if(x + 1, y, 1);
-
-    rlEnd();
-}
-
-void DrawCellWall(int x, int y, uint8_t cellType)
-{
-    float uStart = 0;
-    float uEnd = 1;
-
-    GetCellTypeUs(cellType, uStart, uEnd);
-
-    static Color wallColors[4] = { WHITE, Color{128,128,128,255}, Color{196,196,196,255} , Color{200,200,200,255} };
-
-    rlSetTexture(WallTexture.id);
-    rlBegin(RL_QUADS);
-    Color tint = WHITE;
-
-    if (WorldMap.GetCell(x, y + 1) == 0)
-    {
-        FaceCount++;
-        // north
-        tint = wallColors[0];
-
-        rlColor4ub(tint.r, tint.g, tint.b, 255);
-        rlNormal3f(0, 1, 0);
-
-        rlTexCoord2f(uStart, 1);
-        rlVertex3if(x + 1, y + 1, 0);
-
-        rlTexCoord2f(uEnd, 1);
-        rlVertex3if(x, y + 1, 0);
-
-        rlTexCoord2f(uEnd, 0);
-        rlVertex3if(x, y + 1, 1);
-
-        rlTexCoord2f(uStart, 0);
-        rlVertex3if(x + 1, y + 1, 1);
-    }
-
-    // south
-    if (WorldMap.GetCell(x, y - 1) == 0)
-    {
-        FaceCount++;
-
-        tint = wallColors[1];
-        rlColor4ub(tint.r, tint.g, tint.b, 255);
-        rlNormal3f(0, -1, 0);
-
-        rlTexCoord2f(uStart, 1);
-        rlVertex3if(x + 1, y, 0);
-
-        rlTexCoord2f(uStart, 0);
-        rlVertex3if(x + 1, y, 1);
-
-        rlTexCoord2f(uEnd, 0);
-        rlVertex3if(x, y, 1);
-
-        rlTexCoord2f(uEnd, 1);
-        rlVertex3if(x, y, 0);
-    }
-
-    // east
-    if (WorldMap.GetCell(x + 1, y) == 0)
-    {
-        FaceCount++;
-        tint = wallColors[2];
-        rlColor4ub(tint.r, tint.g, tint.b, 255);
-        rlNormal3f(1, 0, 0);
-
-        rlTexCoord2f(uStart, 1);
-        rlVertex3if(x + 1, y, 0);
-
-        rlTexCoord2f(uEnd, 1);
-        rlVertex3if(x + 1, y + 1, 0);
-
-        rlTexCoord2f(uEnd, 0);
-        rlVertex3if(x + 1, y + 1, 1);
-
-        rlTexCoord2f(uStart, 0);
-        rlVertex3if(x + 1, y, 1);
-    }
-
-    // west
-    if (WorldMap.GetCell(x - 1, y) == 0)
-    {
-        FaceCount++;
-        tint = wallColors[3];
-        rlColor4ub(tint.r, tint.g, tint.b, 255);
-        rlNormal3f(-1, 0, 0);
-
-        rlTexCoord2f(uStart, 1);
-        rlVertex3if(x, y, 0);
-
-        rlTexCoord2f(uStart, 0);
-        rlVertex3if(x, y, 1);
-
-        rlTexCoord2f(uEnd, 0);
-        rlVertex3if(x, y + 1, 1);
-
-        rlTexCoord2f(uEnd, 1);
-        rlVertex3if(x, y + 1, 0);
-    }
-
-    rlEnd();
-}
-
-
-void DrawView3D(const Raycaster& raycast)
-{
-    Camera3D camera = { 0 };
-    camera.fovy = ViewFOVY;
-    camera.up.z = 1;
-    camera.position.x = PlayerPos.x;
-    camera.position.y = PlayerPos.y;
-    camera.position.z = 0.5f;
-
-    camera.target.x = PlayerPos.x + PlayerFacing.x;
-    camera.target.y = PlayerPos.y + PlayerFacing.y;
-    camera.target.z = 0.5f;
-
-    BeginMode3D(camera);
-    FaceCount = 0;
-
-    for (const auto& pos : raycast.GetHitCelList())
-    {
-        uint8_t cellType = WorldMap.GetCell(pos.x, pos.y);
-
-        if (cellType == 0)
-        {
-            DrawCellFloor(pos.x, pos.y);
-            DrawCellCeiling(pos.x, pos.y);
-        }
-        else
-        {
-            DrawCellWall(pos.x, pos.y, cellType);
-        }
-    }
-
-    EndMode3D();
-}
 
 // move the player around the map
 void UpdateMovement(Raycaster& raycaster)
@@ -353,15 +142,11 @@ int main()
 
     Raycaster raycaster(WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
     MiniMap miniMap(20, raycaster, WorldMap);
-
-    // textures for our walls
-    WallTexture = LoadTexture("resources/textures/textures.png");
-    GenTextureMipmaps(&WallTexture);
-    SetTextureFilter(WallTexture, TEXTURE_FILTER_ANISOTROPIC_16X);
+    ViewRenderer renderer(raycaster, WorldMap);
+    renderer.SetFOVY(ViewFOVY);
 
     // texture for the gun
     GunTexture = LoadTexture("resources/textures/gun.png");
-    SetTextureFilter(WallTexture, TEXTURE_FILTER_POINT);
 
     CrosshairTexture = LoadTexture("resources/textures/crosshair.png");
     // game loop
@@ -379,7 +164,7 @@ int main()
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawView3D(raycaster);
+        renderer.Draw(PlayerPos, PlayerFacing);
 
         DrawGun();
 
@@ -388,15 +173,15 @@ int main()
         // text overlay
         DrawRectangle(0, 0, 450, 50, ColorAlpha(BLACK, 0.25f));
         DrawFPS(2, 0);
-        DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", PlayerPos.x, PlayerPos.y, raycaster.GetCastCount(), FaceCount), 2, 20, 20, WHITE);
+        DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", PlayerPos.x, PlayerPos.y, raycaster.GetCastCount(), renderer.GetFaceCount()), 2, 20, 20, WHITE);
 
         EndDrawing();
     }
 
     // cleanup
-    UnloadTexture(WallTexture);
     UnloadTexture(GunTexture);
     miniMap.Unload();
+    renderer.Unload();
 
     CloseWindow();
     return 0;
