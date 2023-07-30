@@ -29,9 +29,6 @@ Map::Map()
 
     Width = 24;
     Height = 24;
-
-    CellStatus.resize(Width * Height);
-    CellStatus.assign(CellStatus.size(), 0);
 }
 
 uint8_t Map::GetCell(int x, int y) const
@@ -43,27 +40,3 @@ uint8_t Map::GetCell(int x, int y) const
     return Cells[index];
 }
 
-bool Map::IsCellVis(int x, int y) const
-{
-    int index = y * (int)Width + x;
-    return CellStatus[index] == FrameVisId;
-}
-
-void Map::SetCellVis(int x, int y)
-{
-    int index = y * (int)Width + x;
-    uint8_t& id = CellStatus[index];
-    if (id == FrameVisId)
-        return;
-
-    id = FrameVisId;
-    HitCells.push_back(index);
-}
-
-void Map::StartFrame()
-{
-    for (const auto& i : HitCells)
-        CellStatus[i] = 0;
-
-    HitCells.clear();
-}
