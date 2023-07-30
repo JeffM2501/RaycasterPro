@@ -38,17 +38,11 @@
 #include <set>
 
 Map WorldMap;
+constexpr float ViewFOVY = 40;
 
-// how big each map grid is in pixels for the top view
-constexpr uint8_t MapPixelSize = 20;
-
-
+// HUD info
 Texture2D GunTexture = { 0 };
 Texture2D CrosshairTexture = { 0 };
-
-//float ViewFOVX = 66.6f;
-float ViewFOVY = 40;
-
 Vector2 GunBobble = { 0,0 };
 
 float GetFOVX(float fovY)
@@ -58,6 +52,7 @@ float GetFOVX(float fovY)
     return 2.0f * atanf(tanf(fovY * DEG2RAD * 0.5f) * aspectRatio) * RAD2DEG;
 }
 
+// player data
 Vector2 PlayerPos = { 4.5f,  2.5f };
 Vector2 PlayerFacing = { 1, 0 };
 
@@ -155,10 +150,7 @@ int main()
         // move the player
         UpdateMovement(raycaster);
 
-        // compute the rays for the current view
-        // this is where the raycasting happens
         raycaster.StartFrame(PlayerPos, PlayerFacing);
-      //  raycaster.UpdateRayset();
 
         // Draw the results to the screen
         BeginDrawing();

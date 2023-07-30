@@ -52,7 +52,6 @@ public:
     inline int GetCastCount() const { return CastCount; }
 
 protected:
-
     void CastRay(RayResult& ray, const Vector2& pos);
 
     bool CastRayPair(int minPixel, int maxPixel, const Vector2& pos, const Vector2& facing);
