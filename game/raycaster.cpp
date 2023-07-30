@@ -29,6 +29,8 @@ void Raycaster::StartFrame(const Vector2& pos, const Vector2& facing)
     HitCells.clear();
     HitCellLocs.clear();
 
+    CastCount = 0;
+
     // cast this frame
     UpdateRayset(pos, facing);
 }
@@ -37,6 +39,7 @@ void Raycaster::StartFrame(const Vector2& pos, const Vector2& facing)
 void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
 {
     ray.Distance = -1;
+    CastCount++;
 
     // The current grid point we are in
     int mapX = int(floor(pos.x));

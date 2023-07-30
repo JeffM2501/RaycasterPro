@@ -49,9 +49,10 @@ public:
 
     bool IsCellVis(int x, int y) const;
 
+    inline int GetCastCount() const { return CastCount; }
+
 protected:
 
-    // cast a ray and find out what it hits
     void CastRay(RayResult& ray, const Vector2& pos);
 
     bool CastRayPair(int minPixel, int maxPixel, const Vector2& pos, const Vector2& facing);
@@ -63,6 +64,8 @@ protected:
     Map& WorldMap;
     int RenderWidth;
     float RenderFOVX;
+
+    int CastCount = 0;
 
     std::vector<RayResult> RaySet;
     Vector2 CameraPlane;

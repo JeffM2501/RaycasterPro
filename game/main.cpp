@@ -32,6 +32,7 @@
 
 #include "map.h"
 #include "raycaster.h"
+#include "mini_map.h"
 
 #include <stdint.h>
 #include <set>
@@ -41,13 +42,9 @@ Map WorldMap;
 // how big each map grid is in pixels for the top view
 constexpr uint8_t MapPixelSize = 20;
 
-RenderTexture MapRenderTexture;	// render texture for the top view
-
 Texture2D WallTexture = { 0 };
 Texture2D GunTexture = { 0 };
 Texture2D CrosshairTexture = { 0 };
-
-// 3d view size
 
 //float ViewFOVX = 66.6f;
 float ViewFOVY = 40;
@@ -61,92 +58,11 @@ float GetFOVX(float fovY)
     return 2.0f * atanf(tanf(fovY * DEG2RAD * 0.5f) * aspectRatio) * RAD2DEG;
 }
 
-float GetFOVY(float fovX)
-{
-    float aspectRatio = GetScreenWidth() / (float)GetScreenHeight();
-    float halfwidth = tanf(fovX * DEG2RAD / 2);
-    return 2 * atanf(halfwidth / aspectRatio) * RAD2DEG;
-}
-
 Vector2 PlayerPos = { 4.5f,  2.5f };
 Vector2 PlayerFacing = { 1, 0 };
 
 // some stats
-int CastCount = 0;
 int FaceCount = 0;
-
-// get the grid for map coordinate
-uint8_t GetMapGrid(uint8_t x, uint8_t y)
-{
-    return WorldMap.GetCell(x,y);
-}
-
-uint8_t GetMapGrid(const Vector2& pos)
-{
-    return GetMapGrid(uint8_t(pos.x), uint8_t(pos.y));
-}
-
-// compute the rays for the current view
-
-// draw the rays in the top view
-void DrawRayset(const Vector2& playerPos, float scale, const Raycaster& raycast)
-{
-    CastCount = 0;
-
-    for (uint16_t i = 0; i < GetScreenWidth(); i++)
-    {
-        const RayResult& ray = raycast.GetResults()[i];
-
-        if (ray.Distance >= 0 && ray.HitCellIndex >= 0)
-        {
-            DrawLineV(playerPos, Vector2Add(playerPos, Vector2Scale(ray.Directon, ray.Distance * scale)), ColorAlpha(SKYBLUE, 0.75f));
-            CastCount++;
-        }
-    }
-}
-
-void DrawMapTopView(const Raycaster& raycast)
-{
-    if (MapPixelSize == 0)
-        return;
-
-    BeginTextureMode(MapRenderTexture);
-    ClearBackground(DARKGRAY);
-
-    // fill the map with cells
-    for (uint8_t y = 0; y < WorldMap.GetHeight(); y++)
-    {
-        for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
-        {
-            bool hit = raycast.IsCellVis(x, y);
-            if (WorldMap.GetCell(x, y) != 0)
-                DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, hit ? PURPLE : WHITE);
-            else if (hit)
-                DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, DARKPURPLE);
-
-            DrawRectangleLines(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, BLACK);
-        }
-    }
-
-    Vector2 playerPixelSpace = Vector2Scale(PlayerPos, MapPixelSize);
-
-    // draw rays
-    DrawRayset(playerPixelSpace, MapPixelSize, raycast);
-
-    // draw player
-    DrawCircleV(playerPixelSpace, MapPixelSize * 0.25f, BLUE);
-
-    // draw forward vector
-    Vector2 forwardPixelSpace = Vector2Scale(PlayerFacing, MapPixelSize);
-
-    DrawLineV(playerPixelSpace, Vector2Add(playerPixelSpace, forwardPixelSpace), SKYBLUE);
-
-    // draw axis markers
-    DrawLine(MapPixelSize / 4, MapPixelSize / 4, MapPixelSize, MapPixelSize / 4, RED);
-    DrawLine(MapPixelSize / 4, MapPixelSize / 4, MapPixelSize / 4, MapPixelSize, GREEN);
-
-    EndTextureMode();
-}
 
 // draw the 3d view
 void GetCellTypeUs(uint8_t cellType, float& uStart, float& uEnd)
@@ -409,7 +325,7 @@ void UpdateMovement(Raycaster& raycaster)
 
     Vector2 newPos = Vector2Add(PlayerPos, newVec);
     // if the new pos is not inside the world, allow the player to move there
-    if (GetMapGrid(newPos) == 0)
+    if (WorldMap.GetCell(int(newPos.x),int(newPos.y)) == 0)
         PlayerPos = newPos;
 }
 
@@ -428,26 +344,6 @@ void DrawGun()
     DrawTexture(CrosshairTexture, GetScreenWidth()/2 - CrosshairTexture.width/2, GetScreenHeight()/2 - CrosshairTexture.height/2, ColorAlpha(WHITE, 0.5f));
 }
 
-void DrawMiniMap()
-{
-    Rectangle mapRect = { 0, 0, 300, 300 };
-    mapRect.x = GetScreenWidth() - mapRect.width;
-    mapRect.y = 0;
-
-    DrawRectangleRec(mapRect, ColorAlpha(BLACK, 0.5f));
-
-    Rectangle destRect = { mapRect.x + mapRect.width * 0.5f, mapRect.y + mapRect.height * 0.5f, float(MapRenderTexture.texture.width), float(MapRenderTexture.texture.height) };
-
-	BeginScissorMode(int(mapRect.x), int(mapRect.y), int(mapRect.width), int(mapRect.height));
-
-	Rectangle sourceRect = { 0, 0, float(MapRenderTexture.texture.width), float(MapRenderTexture.texture.height) };
-	Vector2 offset = { (PlayerPos.x * MapPixelSize), MapRenderTexture.texture.height - (PlayerPos.y * MapPixelSize) };
- 
- 	// Note that this render texture is NOT flipped in Y, so that the view has Y be up not down
- 	DrawTexturePro(MapRenderTexture.texture, sourceRect, destRect, offset, 0, WHITE);
-    EndScissorMode();
-}
-
 int main()
 {
     // set up the window
@@ -456,9 +352,7 @@ int main()
     SetTargetFPS(350);
 
     Raycaster raycaster(WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
-
-    // load render textures for the top view and 3d view
-    MapRenderTexture = LoadRenderTexture(int(WorldMap.GetWidth() * MapPixelSize), int(WorldMap.GetHeight() * MapPixelSize));
+    MiniMap miniMap(20, raycaster, WorldMap);
 
     // textures for our walls
     WallTexture = LoadTexture("resources/textures/textures.png");
@@ -481,9 +375,6 @@ int main()
         raycaster.StartFrame(PlayerPos, PlayerFacing);
       //  raycaster.UpdateRayset();
 
-        // update the top view render texture
-        DrawMapTopView(raycaster);
-
         // Draw the results to the screen
         BeginDrawing();
         ClearBackground(BLACK);
@@ -492,19 +383,20 @@ int main()
 
         DrawGun();
 
-        DrawMiniMap();
+        miniMap.Draw(PlayerPos,PlayerFacing);
 
         // text overlay
         DrawRectangle(0, 0, 450, 50, ColorAlpha(BLACK, 0.25f));
         DrawFPS(2, 0);
-        DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", PlayerPos.x, PlayerPos.y, CastCount, FaceCount), 2, 20, 20, WHITE);
+        DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", PlayerPos.x, PlayerPos.y, raycaster.GetCastCount(), FaceCount), 2, 20, 20, WHITE);
 
         EndDrawing();
     }
 
     // cleanup
     UnloadTexture(WallTexture);
-    UnloadRenderTexture(MapRenderTexture);
+    UnloadTexture(GunTexture);
+    miniMap.Unload();
 
     CloseWindow();
     return 0;
