@@ -44,6 +44,7 @@ RenderTexture MapRenderTexture;	// render texture for the top view
 
 Texture2D WallTexture = { 0 };
 Texture2D GunTexture = { 0 };
+Texture2D CrosshairTexture = { 0 };
 
 // 3d view size
 
@@ -609,7 +610,8 @@ void UpdateMovement()
     float rotationSpeed = 180.0f * DEG2RAD * GetFrameTime();
     float movementSpeed = 5.0f * GetFrameTime();
 
-    if (IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT))
+    bool sprint = IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT);
+    if (sprint)
         movementSpeed *= 2;
 
     // compute a rotation for this frame
@@ -649,7 +651,7 @@ void UpdateMovement()
 
     if (Vector2LengthSqr(newVec) > 0)
     {
-        GunBobble.y += GetFrameTime();
+        GunBobble.y += GetFrameTime() * (sprint ? 2 : 1);
         GunBobble.x += GetFrameTime();
     }
 
@@ -667,12 +669,11 @@ void DrawGun()
 
     Rectangle destRect = { GetScreenWidth() / 2,GetScreenHeight(), GunTexture.width * scale, GunTexture.height * scale };
 
-    Vector2 origin = { (destRect.width / 2) - 20 + sinf(GunBobble.x * 5) * 20, destRect.height - 20 + sinf(GunBobble.y * 10) * 10};
+    Vector2 origin = { (destRect.width / 2) + sinf(GunBobble.x * 5) * 15, destRect.height - 20 + sinf(GunBobble.y * 10) * 10};
 
     DrawTexturePro(GunTexture, sourceRect, destRect, origin, 0, WHITE);
 
-    DrawLine(GetScreenWidth() / 2, GetScreenHeight() / 2 + 10, GetScreenWidth() / 2, GetScreenHeight() / 2 - 10, ColorAlpha(WHITE, 0.5f));
-    DrawLine(GetScreenWidth() / 2+10, GetScreenHeight() / 2, GetScreenWidth() / 2-10, GetScreenHeight() / 2, ColorAlpha(WHITE, 0.5f));
+    DrawTexture(CrosshairTexture, GetScreenWidth() / 2 - CrosshairTexture.width / 2, GetScreenHeight() / 2 - CrosshairTexture.height / 2, ColorAlpha(WHITE, 0.5f));
 }
 
 void DrawMiniMap()
@@ -715,6 +716,8 @@ int main()
     // texture for the gun
     GunTexture = LoadTexture("resources/textures/gun.png");
     SetTextureFilter(WallTexture, TEXTURE_FILTER_POINT);
+
+    CrosshairTexture = LoadTexture("resources/textures/crosshair.png");
 
     float angle = atan2f(CameraPlane.y, CameraPlane.x) * RAD2DEG;
 
