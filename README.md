@@ -10,3 +10,16 @@ When the two rays hit the same cell then no subdivision is needed. This means we
 
 Hit cells are tracked and then drawn with OpenGL. Empty cells that were traversed are tracked as well so they can be drawn as floors and ceilings.
 
+This allows each wall and floor to be drawn as a full 3d quad, allowing the GPU to apply effects such as shaders and anisotropic filtering for better visuals. Real shader lighting is also possible using this method, but not included in this demo.
+
+# TODO
+* Doors
+* Objects
+	* Billboards
+	* Meshes
+* Per face textures
+* Skybox
+* Atlas generation
+* Map resource loading
+* Cell Attributes
+* AI raycasting (line of sight)
