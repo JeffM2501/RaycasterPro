@@ -107,14 +107,14 @@ void UpdateMovement(MapCollider& collider)
         GunBobble.x += GetFrameTime();
     }
 
-    collider.Move(Player, newVec);
+    collider.Move(Player, newVec, 0.25f);
 }
 
 void DrawGun()
 {
     Rectangle sourceRect = { 0, 0, float(GunTexture.width), float(GunTexture.height) };
 
-    float scale = 4;
+    float scale = 3.5f;
 
     Rectangle destRect = { GetScreenWidth()*0.5f,float(GetScreenHeight()), GunTexture.width * scale, GunTexture.height * scale };
 
@@ -146,6 +146,13 @@ int main()
     // game loop
     while (!WindowShouldClose())
     {
+
+        if (IsKeyPressed(KEY_PAGE_UP))
+            miniMap.SetGridSize(miniMap.GetGridSize() + 1);
+		if (IsKeyPressed(KEY_PAGE_DOWN) && miniMap.GetGridSize() > 1)
+			miniMap.SetGridSize(miniMap.GetGridSize() - 1);
+
+
         // move the player
         UpdateMovement(collider);
 

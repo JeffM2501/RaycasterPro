@@ -8,7 +8,7 @@ ViewRenderer::ViewRenderer(const Raycaster& raycaster, const Map& map)
 {
     MapTiles = LoadTexture("resources/textures/textures.png");
     GenTextureMipmaps(&MapTiles);
-    SetTextureFilter(MapTiles, TEXTURE_FILTER_ANISOTROPIC_16X);
+    SetTextureFilter(MapTiles, TEXTURE_FILTER_ANISOTROPIC_4X);
 
     ViewCamera.fovy = 40;
     ViewCamera.up.z = 1;
@@ -69,7 +69,7 @@ void ViewRenderer::DrawCellFloor(int x, int y)
     float uStart = 0;
     float uEnd = 1;
     FaceCount++;
-    GetCellTypeUs(8, uStart, uEnd);
+    GetCellTypeUs(10, uStart, uEnd);
 
     rlSetTexture(MapTiles.id);
 
@@ -97,7 +97,7 @@ void ViewRenderer::DrawCellCeiling(int x, int y)
     float uStart = 0;
     float uEnd = 1;
     FaceCount++;
-    GetCellTypeUs(8, uStart, uEnd);
+    GetCellTypeUs(9, uStart, uEnd);
 
     rlSetTexture(MapTiles.id);
 
