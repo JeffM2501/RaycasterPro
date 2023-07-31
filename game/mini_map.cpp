@@ -12,7 +12,12 @@ void MiniMap::Unload()
 {
     if (MapRenderTexture.id != 0)
         UnloadRenderTexture(MapRenderTexture);
+
+    if (MapTileCache.id != 0)
+        UnloadRenderTexture(MapTileCache);
+
     MapRenderTexture.id = 0;
+    MapTileCache.id = 0;
 }
 
 void MiniMap::SetGridSize(int size)
@@ -22,6 +27,21 @@ void MiniMap::SetGridSize(int size)
     Unload();
 
     MapRenderTexture = LoadRenderTexture(int(WorldMap.GetWidth()) * MapPixelSize, int(WorldMap.GetHeight()) * MapPixelSize);
+
+    MapTileCache = LoadRenderTexture(int(WorldMap.GetWidth()) * MapPixelSize, int(WorldMap.GetHeight()) * MapPixelSize);
+    BeginTextureMode(MapTileCache);
+    ClearBackground(DARKGRAY);
+    // cache off the fixed part of the map so we don't have to draw it every time
+    for (uint8_t y = 0; y < WorldMap.GetHeight(); y++)
+    {
+        for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
+        {
+            if (WorldMap.GetCell(x, y) != 0)
+                DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, WHITE);
+            DrawRectangleLines(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, BLACK);
+        }
+    }
+    EndTextureMode();
 }
 
 void MiniMap::Draw(const EntityLocation& loc)
@@ -60,19 +80,14 @@ void MiniMap::Render(const EntityLocation& loc)
     BeginTextureMode(MapRenderTexture);
     ClearBackground(DARKGRAY);
 
-    // fill the map with cells
-    for (uint8_t y = 0; y < WorldMap.GetHeight(); y++)
-    {
-        for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
-        {
-            bool hit = Caster.IsCellVis(x, y);
-            if (WorldMap.GetCell(x, y) != 0)
-                DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, hit ? PURPLE : WHITE);
-            else if (hit)
-                DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, DARKPURPLE);
+    DrawTextureRec(MapTileCache.texture, Rectangle{ 0,0,float(MapTileCache.texture.width),float(-MapTileCache.texture.height)}, Vector2Zero(), WHITE);
 
-            DrawRectangleLines(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, BLACK);
-        }
+    for(const auto& cell : Caster.GetHitCelList())
+    {
+        if (WorldMap.GetCell(cell.x, cell.y) != 0)
+            DrawRectangle(cell.x * MapPixelSize, cell.y * MapPixelSize, MapPixelSize, MapPixelSize, ColorAlpha(PURPLE, 0.5f));
+        else
+            DrawRectangle(cell.x * MapPixelSize, cell.y * MapPixelSize, MapPixelSize, MapPixelSize, ColorAlpha(DARKPURPLE, 0.5f));
     }
 
     Vector2 playerPixelSpace = Vector2Scale(loc.Position, float(MapPixelSize));

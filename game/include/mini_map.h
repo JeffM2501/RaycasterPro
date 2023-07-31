@@ -26,4 +26,5 @@ protected:
     float MiniMapSize = 200;
 
     RenderTexture MapRenderTexture = { 0 };	// render texture for the top view
+    RenderTexture MapTileCache = { 0 };	// render texture for the top view
 };

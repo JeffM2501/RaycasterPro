@@ -188,7 +188,7 @@ int main()
 #endif
 
     InitWindow(width, height, "RaycasterPro Example");
-    SetTargetFPS(1000);
+    SetTargetFPS(250);
 
 #ifndef _DEBUG
     DisableCursor();
