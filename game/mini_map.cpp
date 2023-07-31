@@ -24,9 +24,9 @@ void MiniMap::SetGridSize(int size)
     MapRenderTexture = LoadRenderTexture(int(WorldMap.GetWidth()) * MapPixelSize, int(WorldMap.GetHeight()) * MapPixelSize);
 }
 
-void MiniMap::Draw(const Vector2& pos, const Vector2& facing)
+void MiniMap::Draw(const EntityLocation& loc)
 {
-    Render(pos, facing);
+    Render(loc);
 
     Rectangle mapRect = { 0, 0, 300, 300 };
     mapRect.x = GetScreenWidth() - mapRect.width;
@@ -39,7 +39,7 @@ void MiniMap::Draw(const Vector2& pos, const Vector2& facing)
     BeginScissorMode(int(mapRect.x), int(mapRect.y), int(mapRect.width), int(mapRect.height));
 
     Rectangle sourceRect = { 0, 0, float(MapRenderTexture.texture.width), float(MapRenderTexture.texture.height) };
-    Vector2 offset = { (pos.x * MapPixelSize), MapRenderTexture.texture.height - (pos.y * MapPixelSize) };
+    Vector2 offset = { (loc.Position.x * MapPixelSize), MapRenderTexture.texture.height - (loc.Position.y * MapPixelSize) };
 
     // Note that this render texture is NOT flipped in Y, so that the view has Y be up not down
     DrawTexturePro(MapRenderTexture.texture, sourceRect, destRect, offset, 0, WHITE);
@@ -55,7 +55,7 @@ void MiniMap::DrawRayset(const Vector2& playerPos, float scale)
     }
 }
 
-void MiniMap::Render(const Vector2& pos, const Vector2& facing)
+void MiniMap::Render(const EntityLocation& loc)
 {
     BeginTextureMode(MapRenderTexture);
     ClearBackground(DARKGRAY);
@@ -75,7 +75,7 @@ void MiniMap::Render(const Vector2& pos, const Vector2& facing)
         }
     }
 
-    Vector2 playerPixelSpace = Vector2Scale(pos, float(MapPixelSize));
+    Vector2 playerPixelSpace = Vector2Scale(loc.Position, float(MapPixelSize));
 
     // draw rays
     DrawRayset(playerPixelSpace, float(MapPixelSize));
@@ -84,7 +84,7 @@ void MiniMap::Render(const Vector2& pos, const Vector2& facing)
     DrawCircleV(playerPixelSpace, MapPixelSize * 0.25f, BLUE);
 
     // draw forward vector
-    Vector2 forwardPixelSpace = Vector2Scale(facing, float(MapPixelSize));
+    Vector2 forwardPixelSpace = Vector2Scale(loc.Facing, float(MapPixelSize));
 
     DrawLineV(playerPixelSpace, Vector2Add(playerPixelSpace, forwardPixelSpace), SKYBLUE);
 

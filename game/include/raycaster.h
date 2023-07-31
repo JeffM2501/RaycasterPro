@@ -42,7 +42,7 @@ class Raycaster
 public:
     Raycaster(Map& map, int renderWidth, float renderFOV);
 
-    void StartFrame(const Vector2& pos, const Vector2& facing);
+    void StartFrame(const EntityLocation& loc);
 
     inline const std::vector<RayResult>& GetResults() const { return RaySet; }
     inline const std::vector<Vector2i>& GetHitCelList() const { return HitCellLocs; }
@@ -54,9 +54,9 @@ public:
 protected:
     void CastRay(RayResult& ray, const Vector2& pos);
 
-    bool CastRayPair(int minPixel, int maxPixel, const Vector2& pos, const Vector2& facing);
+    bool CastRayPair(int minPixel, int maxPixel, const EntityLocation& loc);
 
-    void UpdateRayset(const Vector2& pos, const Vector2& facing);
+    void UpdateRayset(const EntityLocation& loc);
 
     void SetCellVis(int x, int y);
 

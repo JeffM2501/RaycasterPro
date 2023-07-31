@@ -13,10 +13,10 @@ public:
     void SetGridSize(int size);
     inline int GetGridSize() const { return MapPixelSize; }
 
-    void Draw(const Vector2& pos, const Vector2& facing);
+    void Draw(const EntityLocation& loc);
 
 protected:
-    void Render(const Vector2& pos, const Vector2& facing);
+    void Render(const EntityLocation& loc);
     void DrawRayset(const Vector2& playerPos, float scale);
 
     const Raycaster& Caster;

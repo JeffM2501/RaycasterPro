@@ -16,10 +16,10 @@ Raycaster::Raycaster(Map& map, int renderWidth, float renderFOV)
     CellStatus.assign(CellStatus.size(), 0);
 }
 
-void Raycaster::StartFrame(const Vector2& pos, const Vector2& facing)
+void Raycaster::StartFrame(const EntityLocation& loc)
 {
     // set the camera plane for this view
-    float angle = atan2f(facing.y, facing.x);
+    float angle = atan2f(loc.Facing.y, loc.Facing.x);
     CameraPlane = Vector2Rotate(NominalCameraPlane, angle);
 
     // clear any previous hit cells
@@ -32,7 +32,7 @@ void Raycaster::StartFrame(const Vector2& pos, const Vector2& facing)
     CastCount = 0;
 
     // cast this frame
-    UpdateRayset(pos, facing);
+    UpdateRayset(loc);
 }
 
 // cast a ray and find out what it hits
@@ -154,7 +154,7 @@ void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
     ray.Distance = perpWallDist;
 }
 
-bool Raycaster::CastRayPair(int minPixel, int maxPixel, const Vector2& pos, const Vector2& facing)
+bool Raycaster::CastRayPair(int minPixel, int maxPixel, const EntityLocation& loc)
 {
     float cameraX = 0;
 
@@ -168,26 +168,26 @@ bool Raycaster::CastRayPair(int minPixel, int maxPixel, const Vector2& pos, cons
     if (minRay.HitCellIndex < 0)
     {
         cameraX = 2 * minPixel / (float)RenderWidth - 1; //x-coordinate in camera space
-        minRay.Directon.x = facing.x + CameraPlane.x * cameraX;
-        minRay.Directon.y = facing.y + CameraPlane.y * cameraX;
-        CastRay(minRay, pos);
+        minRay.Directon.x = loc.Facing.x + CameraPlane.x * cameraX;
+        minRay.Directon.y = loc.Facing.y + CameraPlane.y * cameraX;
+        CastRay(minRay, loc.Position);
     }
 
     if (maxRay.HitCellIndex < 0)
     {
         cameraX = 2 * maxPixel / (float)RenderWidth - 1; //x-coordinate in camera space
-        maxRay.Directon.x = facing.x + CameraPlane.x * cameraX;
-        maxRay.Directon.y = facing.y + CameraPlane.y * cameraX;
+        maxRay.Directon.x = loc.Facing.x + CameraPlane.x * cameraX;
+        maxRay.Directon.y = loc.Facing.y + CameraPlane.y * cameraX;
 
-        CastRay(maxRay, pos);
+        CastRay(maxRay, loc.Position);
     }
 
     return minRay.HitCellIndex == maxRay.HitCellIndex;
 }
 
-void Raycaster::UpdateRayset(const Vector2& pos, const Vector2& facing)
+void Raycaster::UpdateRayset(const EntityLocation& loc)
 {
-    SetCellVis(int(pos.x), int(pos.y));
+    SetCellVis(int(loc.Position.x), int(loc.Position.y));
 
     for (uint16_t i = 0; i < RenderWidth; i++)
         RaySet[i].HitCellIndex = -1;
@@ -203,7 +203,7 @@ void Raycaster::UpdateRayset(const Vector2& pos, const Vector2& facing)
         int min = pendingCasts[index].first;
         int max = pendingCasts[index].second;
 
-        if (!CastRayPair(min, max, pos, facing))
+        if (!CastRayPair(min, max, loc))
         {
             int bisector = ((max - min) / 2) + min;
 

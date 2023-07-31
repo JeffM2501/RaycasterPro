@@ -19,14 +19,14 @@ void ViewRenderer::Unload()
     UnloadTexture(MapTiles);
 }
 
-void ViewRenderer::Draw(const Vector2& pos, const Vector2& facing)
+void ViewRenderer::Draw(const EntityLocation& loc)
 {
-    ViewCamera.position.x = pos.x;
-    ViewCamera.position.y = pos.y;
+    ViewCamera.position.x = loc.Position.x;
+    ViewCamera.position.y = loc.Position.y;
     ViewCamera.position.z = 0.5f;
 
-    ViewCamera.target.x = pos.x + facing.x;
-    ViewCamera.target.y = pos.y + facing.y;
+    ViewCamera.target.x = loc.Position.x + loc.Facing.x;
+    ViewCamera.target.y = loc.Position.y + loc.Facing.y;
     ViewCamera.target.z = 0.5f;
 
     BeginMode3D(ViewCamera);

@@ -33,6 +33,7 @@
 #include "raycaster.h"
 #include "mini_map.h"
 #include "view_render.h"
+#include "map_collider.h"
 
 #include <stdint.h>
 #include <set>
@@ -53,11 +54,10 @@ float GetFOVX(float fovY)
 }
 
 // player data
-Vector2 PlayerPos = { 4.5f,  2.5f };
-Vector2 PlayerFacing = { 1, 0 };
+EntityLocation Player{ Vector2{ 4.5f,  2.5f }, Vector2{1, 0} };
 
 // move the player around the map
-void UpdateMovement(Raycaster& raycaster)
+void UpdateMovement(MapCollider& collider)
 {
     // speeds, based on time
     float rotationSpeed = 180.0f * DEG2RAD * GetFrameTime();
@@ -80,20 +80,20 @@ void UpdateMovement(Raycaster& raycaster)
         rotation -= GetMouseDelta().x / 100.0f;
 
     // rotate the player and the camera plane
-    PlayerFacing = Vector2Rotate(PlayerFacing, rotation);
+    Player.Facing = Vector2Rotate(Player.Facing, rotation);
 
     // compute a new position based on movement
     Vector2 newVec = { 0,0 };
 
     // the vector that is to the left
-    Vector2 sideStepVector = { -PlayerFacing.y, PlayerFacing.x };
+    Vector2 sideStepVector = { -Player.Facing.y, Player.Facing.x };
 
     // move the new pos based on keys
     if (IsKeyDown(KEY_W))
-        newVec = Vector2Add(newVec, Vector2Scale(PlayerFacing, movementSpeed));
+        newVec = Vector2Add(newVec, Vector2Scale(Player.Facing, movementSpeed));
 
     if (IsKeyDown(KEY_S))
-        newVec = Vector2Add(newVec, Vector2Scale(PlayerFacing, -movementSpeed));
+        newVec = Vector2Add(newVec, Vector2Scale(Player.Facing, -movementSpeed));
 
     if (IsKeyDown(KEY_A))
         newVec = Vector2Add(newVec, Vector2Scale(sideStepVector, movementSpeed));
@@ -107,10 +107,7 @@ void UpdateMovement(Raycaster& raycaster)
         GunBobble.x += GetFrameTime();
     }
 
-    Vector2 newPos = Vector2Add(PlayerPos, newVec);
-    // if the new pos is not inside the world, allow the player to move there
-    if (WorldMap.GetCell(int(newPos.x),int(newPos.y)) == 0)
-        PlayerPos = newPos;
+    collider.Move(Player, newVec);
 }
 
 void DrawGun()
@@ -138,6 +135,8 @@ int main()
     Raycaster raycaster(WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
     MiniMap miniMap(20, raycaster, WorldMap);
     ViewRenderer renderer(raycaster, WorldMap);
+    MapCollider collider(WorldMap);
+
     renderer.SetFOVY(ViewFOVY);
 
     // texture for the gun
@@ -148,24 +147,24 @@ int main()
     while (!WindowShouldClose())
     {
         // move the player
-        UpdateMovement(raycaster);
+        UpdateMovement(collider);
 
-        raycaster.StartFrame(PlayerPos, PlayerFacing);
+        raycaster.StartFrame(Player);
 
         // Draw the results to the screen
         BeginDrawing();
         ClearBackground(BLACK);
 
-        renderer.Draw(PlayerPos, PlayerFacing);
+        renderer.Draw(Player);
 
         DrawGun();
 
-        miniMap.Draw(PlayerPos,PlayerFacing);
+        miniMap.Draw(Player);
 
         // text overlay
         DrawRectangle(0, 0, 450, 50, ColorAlpha(BLACK, 0.25f));
         DrawFPS(2, 0);
-        DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", PlayerPos.x, PlayerPos.y, raycaster.GetCastCount(), renderer.GetFaceCount()), 2, 20, 20, WHITE);
+        DrawText(TextFormat("Player X%2.1f, X%2.1f, Casts %d Faces = %d", Player.Position.x, Player.Position.y, raycaster.GetCastCount(), renderer.GetFaceCount()), 2, 20, 20, WHITE);
 
         EndDrawing();
     }

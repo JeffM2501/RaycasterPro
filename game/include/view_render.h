@@ -10,7 +10,7 @@ public:
 
     void Unload();
 
-    void Draw(const Vector2& pos, const Vector2& facing);
+    void Draw(const EntityLocation& loc);
 
     inline void SetFOVY(float fov) { ViewCamera.fovy = fov; }
     inline float GetFOVY() const { return ViewCamera.fovy; }
