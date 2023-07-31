@@ -73,9 +73,9 @@ void MapCollider::PointNearesGridPoint(int x, int y, const Vector2 point, Vector
 	Vector2 nearestPoint = { hValue,0 };
 
 	if (dotForPoint < 0)
-		nearestPoint.y = y;
+		nearestPoint.y = float(y);
 	else if (dotForPoint >= 1)
-		nearestPoint.y = y + 1;
+		nearestPoint.y = float(y + 1);
 	else
 		nearestPoint.y = y + dotForPoint;
 
@@ -84,7 +84,7 @@ void MapCollider::PointNearesGridPoint(int x, int y, const Vector2 point, Vector
 	float vNormal = -1;
 	if (point.y > y + 1)
 	{
-		vValue = y + 1;
+		vValue = float(y + 1);
 		vNormal = 1;
 	}
 
@@ -94,11 +94,11 @@ void MapCollider::PointNearesGridPoint(int x, int y, const Vector2 point, Vector
 	*nearest = Vector2{ 0,vValue };
 
 	if (dotForPoint < 0)
-		nearest->x = x;
+		nearest->x = float(x);
 	else if (dotForPoint >= 1)
-		nearest->x = x + 1;
+		nearest->x = float(x + 1);
 	else
-		nearest->x = x + dotForPoint;
+		nearest->x = float(x + dotForPoint);
 
 	if (Vector2LengthSqr(Vector2Subtract(point, nearestPoint)) < Vector2LengthSqr(Vector2Subtract(point, *nearest)))
 	{

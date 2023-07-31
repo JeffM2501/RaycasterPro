@@ -12,6 +12,14 @@ Hit cells are tracked and then drawn with OpenGL. Empty cells that were traverse
 
 This allows each wall and floor to be drawn as a full 3d quad, allowing the GPU to apply effects such as shaders and anisotropic filtering for better visuals. Real shader lighting is also possible using this method, but not included in this demo.
 
+# Building
+This project uses game-premake. Run the batch files for windows or the correct premake command for your platform. See https://github.com/raylib-extras/game-premake for more info.
+
+# Running
+In release mode the game is fullscreen and works like a FPS. Mouse to rotate WADS to move.
+
+In debug mode it is not fullscreen, and you must hold the right mouse button down to rotate with the mouse, all other controls are the same.
+
 # TODO
 * Doors
 * Objects
@@ -23,3 +31,4 @@ This allows each wall and floor to be drawn as a full 3d quad, allowing the GPU 
 * Map resource loading
 * Cell Attributes
 * AI raycasting (line of sight)
+* Editor and asset format?

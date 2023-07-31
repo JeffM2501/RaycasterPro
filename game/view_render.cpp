@@ -6,7 +6,7 @@ ViewRenderer::ViewRenderer(const Raycaster& raycaster, const Map& map)
     : Caster(raycaster)
     , WorldMap(map)
 {
-    MapTiles = LoadTexture("resources/textures/textures.png");
+    MapTiles = LoadTexture("textures/textures.png");
     GenTextureMipmaps(&MapTiles);
     SetTextureFilter(MapTiles, TEXTURE_FILTER_ANISOTROPIC_4X);
 

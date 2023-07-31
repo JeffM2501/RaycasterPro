@@ -46,6 +46,54 @@ Texture2D GunTexture = { 0 };
 Texture2D CrosshairTexture = { 0 };
 Vector2 GunBobble = { 0,0 };
 
+bool UseButtonForMouse = true;
+
+bool SearchAndSetResourceDir(const char* folderName)
+{
+    // check the working dir
+    if (DirectoryExists(folderName))
+    {
+        ChangeDirectory(TextFormat("%s/%s", GetWorkingDirectory(), folderName));
+        return true;
+    }
+
+    const char* appDir = GetApplicationDirectory();
+
+    // check the applicationDir
+    const char* dir = TextFormat("%s%s", appDir, folderName);
+    if (DirectoryExists(dir))
+    {
+        ChangeDirectory(dir);
+        return true;
+    }
+
+    // check one up from the app dir
+    dir = TextFormat("%s../%s", appDir, folderName);
+    if (DirectoryExists(dir))
+    {
+        ChangeDirectory(dir);
+        return true;
+    }
+
+    // check two up from the app dir
+    dir = TextFormat("%s../../%s", appDir, folderName);
+    if (DirectoryExists(dir))
+    {
+        ChangeDirectory(dir);
+        return true;
+    }
+
+    // check three up from the app dir
+    dir = TextFormat("%s../../../%s", appDir, folderName);
+    if (DirectoryExists(dir))
+    {
+        ChangeDirectory(dir);
+        return true;
+    }
+
+    return false;
+}
+
 float GetFOVX(float fovY)
 {
     float aspectRatio = GetScreenWidth() / (float)GetScreenHeight();
@@ -76,7 +124,7 @@ void UpdateMovement(MapCollider& collider)
     if (IsKeyDown(KEY_E))
         rotation -= rotationSpeed;
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+    if (!UseButtonForMouse || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
         rotation -= GetMouseDelta().x / 100.0f;
 
     // rotate the player and the camera plane
@@ -127,10 +175,25 @@ void DrawGun()
 
 int main()
 {
+    SearchAndSetResourceDir("resources");
     // set up the window
-    SetConfigFlags(FLAG_VSYNC_HINT);
-    InitWindow(1600, 900, "RaycasterPro Example");
-    SetTargetFPS(350);
+  
+    int width = 1600;
+    int height = 900;
+
+#ifndef _DEBUG
+    width = 0;
+    height = 0;
+    SetConfigFlags(FLAG_FULLSCREEN_MODE | FLAG_VSYNC_HINT);
+#endif
+
+    InitWindow(width, height, "RaycasterPro Example");
+    SetTargetFPS(1000);
+
+#ifndef _DEBUG
+    DisableCursor();
+    UseButtonForMouse = false;
+#endif
 
     Raycaster raycaster(WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
     MiniMap miniMap(20, raycaster, WorldMap);
@@ -140,9 +203,9 @@ int main()
     renderer.SetFOVY(ViewFOVY);
 
     // texture for the gun
-    GunTexture = LoadTexture("resources/textures/gun.png");
+    GunTexture = LoadTexture("textures/gun.png");
 
-    CrosshairTexture = LoadTexture("resources/textures/crosshair.png");
+    CrosshairTexture = LoadTexture("textures/crosshair.png");
     // game loop
     while (!WindowShouldClose())
     {
