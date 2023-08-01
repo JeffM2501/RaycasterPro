@@ -25,10 +25,18 @@ Map::Map()
                         4, 0, 0, 5, 0, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2,
                         4, 0, 6, 0, 6, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 5, 0, 0, 2, 0, 0, 0, 2,
                         4, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6, 0, 6, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2,
-                        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 });
+                        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3
+        });
 
     Width = 24;
     Height = 24;
+}
+
+Map::Map(const std::vector<uint8_t>& cells, size_t width, size_t height)
+{
+    Cells = cells;
+    Width = width;
+    Height = height;
 }
 
 uint8_t Map::GetCell(int x, int y) const
@@ -39,4 +47,3 @@ uint8_t Map::GetCell(int x, int y) const
 
     return Cells[index];
 }
-

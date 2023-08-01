@@ -25,8 +25,10 @@ project (baseName)
     includedirs { "./" }
     includedirs { "src" }
     includedirs { "include" }
+    includedirs { "utils" }
     
     link_raylib()
+	link_to('rlImGui')
+    link_to('mapLib')
 	
-	link_to('mapLib')
 	-- To link to a lib use link_to("LIB_FOLDER_NAME")

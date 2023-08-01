@@ -80,9 +80,9 @@ void MiniMap::Render(const EntityLocation& loc)
     BeginTextureMode(MapRenderTexture);
     ClearBackground(DARKGRAY);
 
-    DrawTextureRec(MapTileCache.texture, Rectangle{ 0,0,float(MapTileCache.texture.width),float(-MapTileCache.texture.height)}, Vector2Zero(), WHITE);
+    DrawTextureRec(MapTileCache.texture, Rectangle{ 0,0,float(MapTileCache.texture.width),float(-MapTileCache.texture.height) }, Vector2Zero(), WHITE);
 
-    for(const auto& cell : Caster.GetHitCelList())
+    for (const auto& cell : Caster.GetHitCelList())
     {
         if (WorldMap.GetCell(cell.x, cell.y) != 0)
             DrawRectangle(cell.x * MapPixelSize, cell.y * MapPixelSize, MapPixelSize, MapPixelSize, ColorAlpha(PURPLE, 0.5f));

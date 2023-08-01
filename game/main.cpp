@@ -173,6 +173,32 @@ void DrawGun()
     DrawTexture(CrosshairTexture, GetScreenWidth()/2 - CrosshairTexture.width/2, GetScreenHeight()/2 - CrosshairTexture.height/2, ColorAlpha(WHITE, 0.5f));
 }
 
+void ProcessInput(MiniMap &miniMap, MapCollider& collider)
+{
+    if (IsKeyPressed(KEY_PAGE_UP))
+        miniMap.SetGridSize(miniMap.GetGridSize() + 1);
+    if (IsKeyPressed(KEY_PAGE_DOWN) && miniMap.GetGridSize() > 1)
+        miniMap.SetGridSize(miniMap.GetGridSize() - 1);
+
+    // move the player
+    UpdateMovement(collider);
+}
+
+void LoadResources()
+{
+    // texture for the gun
+    GunTexture = LoadTexture("textures/gun.png");
+    CrosshairTexture = LoadTexture("textures/crosshair.png");
+}
+
+void UnloadResources(MiniMap &miniMap, ViewRenderer &renderer)
+{
+    UnloadTexture(GunTexture);
+    UnloadTexture(CrosshairTexture);
+    miniMap.Unload();
+    renderer.Unload();
+}
+
 int main()
 {
     SearchAndSetResourceDir("resources");
@@ -202,22 +228,12 @@ int main()
 
     renderer.SetFOVY(ViewFOVY);
 
-    // texture for the gun
-    GunTexture = LoadTexture("textures/gun.png");
+    LoadResources();
 
-    CrosshairTexture = LoadTexture("textures/crosshair.png");
     // game loop
     while (!WindowShouldClose())
     {
-
-        if (IsKeyPressed(KEY_PAGE_UP))
-            miniMap.SetGridSize(miniMap.GetGridSize() + 1);
-		if (IsKeyPressed(KEY_PAGE_DOWN) && miniMap.GetGridSize() > 1)
-			miniMap.SetGridSize(miniMap.GetGridSize() - 1);
-
-
-        // move the player
-        UpdateMovement(collider);
+        ProcessInput(miniMap, collider);
 
         raycaster.StartFrame(Player);
 
@@ -240,10 +256,7 @@ int main()
     }
 
     // cleanup
-    UnloadTexture(GunTexture);
-    miniMap.Unload();
-    renderer.Unload();
-
+    UnloadResources(miniMap, renderer);
     CloseWindow();
     return 0;
 }

@@ -12,12 +12,6 @@ enum class HitNormals : uint8_t
     West
 };
 
-struct Vector2i
-{
-    int x = -1;
-    int y = -1;
-};
-
 // a ray that has been cast, with cached info
 struct RayResult
 {
