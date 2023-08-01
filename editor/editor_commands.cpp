@@ -1,6 +1,7 @@
 #include "editor_commands.h"
 
 #include "editor.h"
+#include "map_editor.h"
 
 #include "tinyfiledialogs.h"
 
@@ -14,13 +15,15 @@ namespace EditorCommands
     OpenMapCommand OpenMap;
     SaveMapCommand SaveMap;
     SaveMapAsCommand SaveMapAs;
-
-    CommandSet Commands;
+	UndoCommand Undo;
+	RedoCommand Redo;
 }
+
+CommandSet EditorCommand::Commands;
 
 EditorCommand::EditorCommand()
 {
-    EditorCommands::Commands.Add(*this);
+    Commands.Add(*this);
 }
 
 QuitCommand::QuitCommand()
@@ -45,7 +48,7 @@ NewMapCommand::NewMapCommand()
 
 void NewMapCommand::Process()
 {
-    if (Editor::GetActiveEditor().Dirty)
+    if (Editor::GetActiveEditor().IsDirty())
     { 
         // give them a chance to save
         if (tinyfd_messageBox("Save existing map?", "The current map has unsaved changes, do you wish to save them?", "yesno", "question", 1) == 1)
@@ -85,7 +88,6 @@ void SaveMapCommand::Process()
         if (saveFileName != nullptr)
         {
             Editor::GetActiveEditor().MapFilepath = saveFileName;
-            Editor::GetActiveEditor().Dirty = true;
         }
     }
     Editor::GetActiveEditor().Save();
@@ -93,7 +95,7 @@ void SaveMapCommand::Process()
 
 bool SaveMapCommand::IsEnabled() const
 {
-    return Editor::GetActiveEditor().Dirty;
+    return Editor::GetActiveEditor().IsDirty();
 }
 
 SaveMapAsCommand::SaveMapAsCommand()
@@ -107,4 +109,40 @@ SaveMapAsCommand::SaveMapAsCommand()
 void SaveMapAsCommand::Process()
 {
     const char* saveFileName = tinyfd_saveFileDialog("Save Map As", Editor::GetActiveEditor().MapFilepath.c_str(), MapFilterPatternSize, MapFilterPatterns, nullptr);
+}
+
+UndoCommand::UndoCommand()
+{
+	Name = "Undo";
+	Icon = ICON_FA_CIRCLE_ARROW_LEFT;
+	ShortcutKey = ImGuiKey_Z;
+	Modifyers.insert(ImGuiKey_ModCtrl);
+}
+
+void UndoCommand::Process()
+{
+    Editor::GetActiveEditor().Undo();
+}
+
+bool UndoCommand::IsEnabled() const
+{
+    return Editor::GetActiveEditor().CanUndo();
+}
+
+RedoCommand::RedoCommand()
+{
+	Name = "Redo";
+	Icon = ICON_FA_CIRCLE_ARROW_RIGHT;
+	ShortcutKey = ImGuiKey_Y;
+	Modifyers.insert(ImGuiKey_ModCtrl);
+}
+
+void RedoCommand::Process()
+{
+    Editor::GetActiveEditor().Redo();
+}
+
+bool RedoCommand::IsEnabled() const
+{
+    return Editor::GetActiveEditor().CanRedo();
 }

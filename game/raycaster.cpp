@@ -1,6 +1,5 @@
 #include "raycaster.h"
 
-
 Raycaster::Raycaster(Map& map, int renderWidth, float renderFOV)
     : WorldMap(map)
     , RenderWidth(renderWidth)

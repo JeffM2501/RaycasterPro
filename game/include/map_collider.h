@@ -1,6 +1,6 @@
 #pragma once
 
-#include "raymath.h"
+#include "entity_location.h"
 #include "map.h"
 
 class MapCollider

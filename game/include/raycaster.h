@@ -1,6 +1,7 @@
 #pragma once
 
 #include "map.h"
+#include "entity_location.h"
 #include "raymath.h"
 
 // used to know what side of a grid was hit

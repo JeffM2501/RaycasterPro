@@ -7,7 +7,9 @@
 
 #include "command.h"
 #include "editor.h"
+#include "map_editor.h"
 #include "editor_commands.h"
+#include "views/editor_view.h"
 
 namespace Editor
 {
@@ -16,6 +18,9 @@ namespace Editor
     MapEditor ActiveEditor;
     MapEditor& GetActiveEditor() { return ActiveEditor; }
 
+    EditorView ActiveView(ActiveEditor);
+    EditorView& GetActiveView() { return ActiveView; }
+
     void Quit()
     {
         WantQuit = true;
@@ -23,12 +28,16 @@ namespace Editor
 
     void Shutdown()
     {
-
+        ActiveView.Shutdown();
     }
 
     void Update()
     {
-        EditorCommands::Commands.CheckShortcuts();
+        EditorCommand::Commands.CheckShortcuts();
+
+        if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+            ActiveView.Pan(GetMouseDelta());
+        ActiveView.Zoom(GetMouseWheelMove());
     }
 
     void Startup()
@@ -53,6 +62,14 @@ namespace Editor
 
                 ImGui::EndMenu();
             }
+			if (ImGui::BeginMenu("Edit"))
+			{
+				EditorCommands::Undo.Menu();
+				EditorCommands::Redo.Menu();
+
+				ImGui::EndMenu();
+			}
+
             ImGui::EndMainMenuBar();
         }
     }
@@ -60,11 +77,25 @@ namespace Editor
     void ShowUI()
     {
         MainMenu();
+
+        if (ImGui::Begin("Edit History"))
+        {
+            for (size_t i = 0; i < ActiveEditor.GetEditHistory().size(); i++)
+            {
+                const auto& item = ActiveEditor.GetEditHistory()[i];
+                bool selected = i == ActiveEditor.GetCurrentEditHistoryIndex()-1;
+                if (ImGui::Selectable(item.EventName.c_str(), &selected))
+                {
+
+                }
+            }
+        }
+        ImGui::End();
     }
 
     void ShowContent()
     {
-
+        ActiveView.Show();
     }
 }
 
@@ -97,8 +128,6 @@ int main(int argc, char* argv[])
 
 		rlImGuiBegin();
         Editor::ShowUI();
-
-        ImGui::ShowDemoWindow(nullptr);
        
 		rlImGuiEnd();
 

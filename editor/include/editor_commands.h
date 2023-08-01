@@ -6,6 +6,8 @@ class EditorCommand : public Command
 {
 public:
     EditorCommand();
+
+    static CommandSet Commands;
 };
 
 class QuitCommand : public EditorCommand
@@ -44,6 +46,22 @@ public:
     void Process() override;
 };
 
+class UndoCommand : public EditorCommand
+{
+public:
+    UndoCommand();
+	void Process() override;
+	bool IsEnabled() const override;
+};
+
+class RedoCommand : public EditorCommand
+{
+public:
+    RedoCommand();
+	void Process() override;
+	bool IsEnabled() const override;
+};
+
 namespace EditorCommands
 {
     extern QuitCommand Quit;
@@ -52,5 +70,7 @@ namespace EditorCommands
     extern SaveMapCommand SaveMap;
     extern SaveMapAsCommand SaveMapAs;
 
-    extern CommandSet Commands;
+    extern UndoCommand Undo;
+    extern RedoCommand Redo;
+
 }
