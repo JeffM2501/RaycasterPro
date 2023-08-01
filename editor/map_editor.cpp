@@ -89,6 +89,15 @@ void MapEditor::Redo()
 	EditHistoryIndex++;
 }
 
+void MapEditor::SetHistoryIndex(int index)
+{
+	if (EditHistory.empty() || index < 0 || index >= EditHistory.size())
+		return;
+
+	SetDirty();
+	EditHistoryIndex = size_t(index);
+}
+
 bool MapEditor::CanUndo() const
 {
 	return !EditHistory.empty() && EditHistoryIndex > 0;

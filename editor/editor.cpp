@@ -9,7 +9,10 @@
 #include "editor.h"
 #include "map_editor.h"
 #include "editor_commands.h"
+
 #include "views/editor_view.h"
+#include "panels/edit_history.h"
+#include "panels/material_picker_panel.h"
 
 namespace Editor
 {
@@ -21,6 +24,8 @@ namespace Editor
     EditorView ActiveView(ActiveEditor);
     EditorView& GetActiveView() { return ActiveView; }
 
+    std::vector<Panel*> Panels;
+
     void Quit()
     {
         WantQuit = true;
@@ -29,11 +34,20 @@ namespace Editor
     void Shutdown()
     {
         ActiveView.Shutdown();
+
+        for (auto* panel : Panels)
+            delete(panel);
+
+        Panels.clear();
     }
 
     void Update()
     {
         EditorCommands::GetCommandSet().CheckShortcuts();
+
+        ActiveView.HasFocus = !ImGui::GetIO().WantCaptureMouse;
+		if (!ActiveView.HasFocus)
+			return;
 
         if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
             ActiveView.Pan(GetMouseDelta());
@@ -42,6 +56,8 @@ namespace Editor
 
     void Startup()
     {
+        Panels.emplace_back(new EditHistoryPanel()); 
+        Panels.emplace_back(new MaterialPickerPanel());
     }
 
     void MainMenu()
@@ -70,6 +86,16 @@ namespace Editor
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Window"))
+			{
+                for (auto* panel : Panels)
+                {
+                    if (ImGui::MenuItem(panel->GetName(), nullptr, panel->IsVisible()))
+                        panel->SetVisible(!panel->IsVisible());
+                }
+				ImGui::EndMenu();
+			}
+
             ImGui::EndMainMenuBar();
         }
     }
@@ -78,25 +104,8 @@ namespace Editor
     {
         MainMenu();
 
-        ImVec2 size(200, 200);
-        ImGui::SetNextWindowSize(size);
-        ImGui::SetNextWindowPos(ImVec2(GetScreenWidth() - size.x, GetScreenHeight() - size.y));
-        if (ImGui::Begin("Edit History", nullptr, ImGuiWindowFlags_NoMove))
-        {
-            for (size_t i = 0; i < ActiveEditor.GetEditHistory().size(); i++)
-            {
-                const auto& item = ActiveEditor.GetEditHistory()[i];
-                bool selected = i == ActiveEditor.GetCurrentEditHistoryIndex();
-                char tempName[512] = { 0 };
-                sprintf(tempName, "%s %s", selected ? ICON_FA_CARET_RIGHT : " ", item.EventName.c_str());
-
-                if (ImGui::Selectable(tempName, selected))
-                {
-
-                }
-            }
-        }
-        ImGui::End();
+        for (auto* panel : Panels)
+            panel->Show();
     }
 
     void ShowContent()
@@ -134,6 +143,8 @@ int main(int argc, char* argv[])
 
 		rlImGuiBegin();
         Editor::ShowUI();
+
+        ImGui::ShowDemoWindow(nullptr);
        
 		rlImGuiEnd();
 

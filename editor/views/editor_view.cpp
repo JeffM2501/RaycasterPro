@@ -21,12 +21,15 @@ void EditorView::Shutdown()
 
 void EditorView::Show()
 {
-	Vector2 mousePos = GetMousePosition();
-	mousePos.y = GetScreenHeight() - mousePos.y;
-	Vector2 mouseWorldPos = GetScreenToWorld2D(mousePos, ViewCamea);
+	if (HasFocus)
+	{
+		Vector2 mousePos = GetMousePosition();
+		mousePos.y = GetScreenHeight() - mousePos.y;
+		Vector2 mouseWorldPos = GetScreenToWorld2D(mousePos, ViewCamea);
 
-	HoveredCell.x = int(floorf(mouseWorldPos.x / CellRenderSize));
-	HoveredCell.y = int(floorf(mouseWorldPos.y / CellRenderSize));
+		HoveredCell.x = int(floorf(mouseWorldPos.x / CellRenderSize));
+		HoveredCell.y = int(floorf(mouseWorldPos.y / CellRenderSize));
+	}
 
 	CheckCacheSize(GetScreenWidth(), GetScreenHeight());
 
@@ -57,11 +60,13 @@ void EditorView::Show()
 	EndMode2D();
 
 	EndTextureMode();
-
 	DrawTexture(MapCacheTexture.texture, 0, 0, WHITE);
 
-	if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-		Editor.SetCell(HoveredCell, 0);
+	if (HasFocus)
+	{ 
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+			Editor.SetCell(HoveredCell, 0);
+	}
 }
 
 void EditorView::Pan(const Vector2& offset)

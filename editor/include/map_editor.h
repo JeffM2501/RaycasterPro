@@ -40,7 +40,9 @@ public:
     void Undo();
     void Redo();
     bool CanUndo() const;
-    bool CanRedo() const ;
+    bool CanRedo() const;
+
+    void SetHistoryIndex(int index);
 
     void Resize(int newX, int newY);
 

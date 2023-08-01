@@ -22,6 +22,8 @@ public:
 
 	Vector2i GetHoverCell() const { return HoveredCell; }
 
+	bool HasFocus = false;
+
 protected:
 	MapEditor& Editor;
 
