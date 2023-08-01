@@ -49,7 +49,7 @@ public:
     std::string MapFilepath;
     bool Loaded = false;
   
-    HistoryState CurrentState;
+    HistoryState& GetCurrentState();
 
     const std::vector<HistoryState>& GetEditHistory() const { return EditHistory; }
     const size_t GetCurrentEditHistoryIndex() const { return EditHistoryIndex; }

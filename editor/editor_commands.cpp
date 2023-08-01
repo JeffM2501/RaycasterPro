@@ -10,6 +10,12 @@ constexpr  char* MapFilterPatterns[MapFilterPatternSize] = { "*.mres" };
 
 namespace EditorCommands
 {
+	CommandSet GlobalCommandSet;
+	CommandSet& GetCommandSet()
+	{
+		return GlobalCommandSet;
+	}
+
     QuitCommand Quit;
     NewMapCommand NewMap;
     OpenMapCommand OpenMap;
@@ -19,11 +25,9 @@ namespace EditorCommands
 	RedoCommand Redo;
 }
 
-CommandSet EditorCommand::Commands;
-
 EditorCommand::EditorCommand()
 {
-    Commands.Add(*this);
+    EditorCommands::GetCommandSet().Add(*this);
 }
 
 QuitCommand::QuitCommand()

@@ -7,11 +7,12 @@ MapEditor::MapEditor()
 
 void MapEditor::Clear()
 {
-	Map defaultMap;
-	FromMap(defaultMap);
-
 	EditHistoryIndex = 0;
 	EditHistory.clear();
+	EditHistory.emplace_back(HistoryState{ "New Map" });
+
+	Map defaultMap;
+	FromMap(defaultMap);
 }
 
 void MapEditor::Load(std::string_view filepath)
@@ -20,6 +21,7 @@ void MapEditor::Load(std::string_view filepath)
 
 	EditHistoryIndex = 0;
 	EditHistory.clear();
+	EditHistory.emplace_back(HistoryState{ "Load Map" });
 
 	MapSerializer serializer;
 
@@ -36,19 +38,24 @@ void MapEditor::Save()
 	DirtyFlag = false;
 }
 
+HistoryState& MapEditor::GetCurrentState()
+{
+	return EditHistory[EditHistoryIndex];
+}
+
 void MapEditor::SetCell(const Vector2i& loction, uint8_t cellType)
 {
-	if (loction.x < 0 || loction.x >= CurrentState.Size.x || loction.y < 0 || loction.y > CurrentState.Size.y)
+	if (loction.x < 0 || loction.x >= GetCurrentState().Size.x || loction.y < 0 || loction.y > GetCurrentState().Size.y)
 		return;
 
 	SaveState("Set Cell");
-	CurrentState.Cells[CurrentState.GetCellIndex(loction)] = cellType;
+	GetCurrentState().Cells[GetCurrentState().GetCellIndex(loction)] = cellType;
 }
 
 void MapEditor::Resize(int newX, int newY)
 {
 	SaveState("Resize");
-	CurrentState.Cells.resize(newX * newY);
+	GetCurrentState().Cells.resize(newX * newY);
 
 	const HistoryState& oldState = EditHistory[EditHistoryIndex - 1];
 
@@ -60,7 +67,7 @@ void MapEditor::Resize(int newX, int newY)
 
 			if (x <= oldState.Size.x && y <= oldState.Size.y)
 				newCell = oldState.Cells[oldState.GetCellIndex(x, y)];
-			CurrentState.Cells[CurrentState.GetCellIndex(x, y)] = newCell;
+			GetCurrentState().Cells[GetCurrentState().GetCellIndex(x, y)] = newCell;
 		}
 	}
 }
@@ -72,16 +79,14 @@ void MapEditor::Undo()
 
 	SetDirty();
 	EditHistoryIndex--;
-	CurrentState = EditHistory[EditHistoryIndex];
 }
 
 void MapEditor::Redo()
 {
-	if (EditHistory.empty() || EditHistoryIndex >= EditHistory.size())
+	if (EditHistory.empty() || EditHistoryIndex >= EditHistory.size()-1)
 		return;
 	SetDirty();
 	EditHistoryIndex++;
-	CurrentState = EditHistory[EditHistoryIndex];
 }
 
 bool MapEditor::CanUndo() const
@@ -96,27 +101,30 @@ bool MapEditor::CanRedo() const
 
 void MapEditor::FromMap(Map& map)
 {
-	CurrentState.Size.x = map.GetWidth();
-	CurrentState.Size.y = map.GetHeight();
+	GetCurrentState().Size.x = map.GetWidth();
+	GetCurrentState().Size.y = map.GetHeight();
 
-	CurrentState.Cells = map.GetCells();
+	GetCurrentState().Cells = map.GetCells();
 }
 
 Map MapEditor::ToMap()
 {
-	return Map(CurrentState.Cells, size_t(CurrentState.Size.x), size_t(CurrentState.Size.y));
+	return Map(GetCurrentState().Cells, size_t(GetCurrentState().Size.x), size_t(GetCurrentState().Size.y));
 }
 
 void MapEditor::SaveState(std::string_view eventName)
 {
 	DirtyFlag = false;
 
-	HistoryState state = CurrentState;
+	// copy our current state
+	HistoryState state = GetCurrentState();
 	state.EventName = eventName;
 
-	if (EditHistory.size() > EditHistoryIndex)
-		EditHistory.resize(EditHistoryIndex);
+	// trim off everything after now
+	if (EditHistory.size() > EditHistoryIndex+1)
+		EditHistory.resize(EditHistoryIndex+1);
 
+	// add the new state to the end
 	EditHistory.emplace_back(std::move(state));
 	EditHistoryIndex++;
 }

@@ -6,8 +6,6 @@ class EditorCommand : public Command
 {
 public:
     EditorCommand();
-
-    static CommandSet Commands;
 };
 
 class QuitCommand : public EditorCommand
@@ -72,5 +70,7 @@ namespace EditorCommands
 
     extern UndoCommand Undo;
     extern RedoCommand Redo;
+
+    CommandSet& GetCommandSet();
 
 }

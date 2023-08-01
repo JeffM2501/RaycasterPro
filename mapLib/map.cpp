@@ -32,7 +32,7 @@ Map::Map()
     Height = 24;
 }
 
-Map::Map(const std::vector<uint8_t>& cells, size_t width, size_t height)
+Map::Map(const std::vector<uint8_t>& cells, int width, int height)
 {
     Cells = cells;
     Width = width;

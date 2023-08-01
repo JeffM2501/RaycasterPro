@@ -13,13 +13,13 @@ class Map
 {
 public:
     Map();
-    Map(const std::vector<uint8_t>& cells, size_t width, size_t height);
+    Map(const std::vector<uint8_t>& cells, int width, int height);
 
     uint8_t GetCell(int x, int y) const;
     uint8_t GetCell(const Vector2i& location) const { return GetCell(location.x, location.y); }
 
-    inline size_t GetWidth() const { return Width; }
-    inline size_t GetHeight() const { return Height; }
+    inline int GetWidth() const { return Width; }
+    inline int GetHeight() const { return Height; }
 
     inline int GetCellIndex(int x, int y) const { return y * int(Width) + x; }
     inline int GetCellIndex(const Vector2i& location) const { return location.y * int(Width) + location.x; }
@@ -38,7 +38,7 @@ public:
     }
 
 protected:
-    size_t Width = 0;
-    size_t Height = 0;
+    int Width = 0;
+    int Height = 0;
     std::vector<uint8_t> Cells;
 };

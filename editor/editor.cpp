@@ -33,7 +33,7 @@ namespace Editor
 
     void Update()
     {
-        EditorCommand::Commands.CheckShortcuts();
+        EditorCommands::GetCommandSet().CheckShortcuts();
 
         if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
             ActiveView.Pan(GetMouseDelta());
@@ -78,13 +78,19 @@ namespace Editor
     {
         MainMenu();
 
-        if (ImGui::Begin("Edit History"))
+        ImVec2 size(200, 200);
+        ImGui::SetNextWindowSize(size);
+        ImGui::SetNextWindowPos(ImVec2(GetScreenWidth() - size.x, GetScreenHeight() - size.y));
+        if (ImGui::Begin("Edit History", nullptr, ImGuiWindowFlags_NoMove))
         {
             for (size_t i = 0; i < ActiveEditor.GetEditHistory().size(); i++)
             {
                 const auto& item = ActiveEditor.GetEditHistory()[i];
-                bool selected = i == ActiveEditor.GetCurrentEditHistoryIndex()-1;
-                if (ImGui::Selectable(item.EventName.c_str(), &selected))
+                bool selected = i == ActiveEditor.GetCurrentEditHistoryIndex();
+                char tempName[512] = { 0 };
+                sprintf(tempName, "%s %s", selected ? ICON_FA_CARET_RIGHT : " ", item.EventName.c_str());
+
+                if (ImGui::Selectable(tempName, selected))
                 {
 
                 }

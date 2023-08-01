@@ -37,20 +37,22 @@ void EditorView::Show()
 
 	float renderSize = 32;
 
-	for (int y = 0; y < Editor.CurrentState.Size.y; y++)
+	const HistoryState& currentState = Editor.GetCurrentState();
+
+	for (int y = 0; y < currentState.Size.y; y++)
 	{
-		for (int x = 0; x < Editor.CurrentState.Size.x; x++)
+		for (int x = 0; x < currentState.Size.x; x++)
 		{
-			if (Editor.CurrentState.GetCell(x, y) != 0)
-				DrawRectangle(x * renderSize, y * renderSize, renderSize, renderSize, WHITE);
-			DrawRectangleLines(x * renderSize, y * renderSize, renderSize, renderSize, BLACK);
+			if (currentState.GetCell(x, y) != 0)
+				DrawRectangleRec(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, WHITE);
+			DrawRectangleLinesEx(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, 1, BLACK);
 		}
 	}
 
-	DrawLine(-1, -1, renderSize, -1, RED);
-	DrawLine(-1, -1, -1, renderSize, GREEN);
+	DrawLineEx(Vector2{ -1, -1 }, Vector2{ renderSize, -1 }, 2, RED);
+	DrawLineEx(Vector2{ -1, -1 }, Vector2{ - 1, renderSize }, 2, GREEN);
 
-	DrawRectangle(HoveredCell.x * renderSize, HoveredCell.y * renderSize, renderSize, renderSize, ColorAlpha(YELLOW, 0.25f));
+	DrawRectangleRec(Rectangle{ HoveredCell.x * renderSize, HoveredCell.y * renderSize, renderSize, renderSize }, ColorAlpha(YELLOW, 0.25f));
 
 	EndMode2D();
 

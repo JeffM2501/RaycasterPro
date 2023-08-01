@@ -49,6 +49,7 @@ public:
     void Add(Command& command);
     
     void CheckShortcuts();
+
 protected:
     std::vector<Command*> Commands;
 };

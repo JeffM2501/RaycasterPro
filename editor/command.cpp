@@ -37,19 +37,16 @@ bool CheckModKey(ImGuiKey desiredKey, std::set<ImGuiKey>& keyset)
 
 bool CheckModifyers(std::set<ImGuiKey>& keyset)
 {
-    if (!CheckModKey(ImGuiMod_Ctrl, keyset))
+    if (!CheckModKey(ImGuiKey_ModCtrl, keyset))
         return false;
 
-    if (!CheckModKey(ImGuiMod_Shift, keyset))
+	if (!CheckModKey(ImGuiKey_ModShift, keyset))
+		return false;
+
+    if (!CheckModKey(ImGuiKey_ModAlt, keyset))
         return false;
 
-    if (!CheckModKey(ImGuiMod_Alt, keyset))
-        return false;
-
-    if (!CheckModKey(ImGuiMod_Super, keyset))
-        return false;
-
-    if (!CheckModKey(ImGuiMod_Shortcut, keyset))
+    if (!CheckModKey(ImGuiKey_ModSuper, keyset))
         return false;
 
     return true;
@@ -115,11 +112,11 @@ void Command::CheckName()
 //-----------------------CommandSet----------------------------------//
 void CommandSet::Add(Command& command)
 {
-    for (const Command* command : Commands)
-    {
-        if (command->GetGuid() == command->GetGuid())
-            return;
-    }
+	for (const Command* cmd : Commands)
+	{
+		if (command.GetGuid() == cmd->GetGuid())
+			return;
+	}
 
     Commands.push_back(&command);
 }
