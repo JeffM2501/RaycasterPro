@@ -56,8 +56,10 @@ public:
     const std::vector<HistoryState>& GetEditHistory() const { return EditHistory; }
     const size_t GetCurrentEditHistoryIndex() const { return EditHistoryIndex; }
 
+    inline const int GetCurrentMaterial() const { return CurrentMaterial; }
+    inline void SetCurrentMaterial(int materialIndex) { CurrentMaterial = materialIndex; }
+
 protected:
-    
     void FromMap(Map& map);
     Map ToMap();
 
@@ -68,4 +70,6 @@ protected:
     bool DirtyFlag = false;
     size_t EditHistoryIndex = 0;
     std::vector<HistoryState> EditHistory;
+
+    int CurrentMaterial = 0;
 };

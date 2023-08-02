@@ -13,6 +13,7 @@
 #include "views/editor_view.h"
 #include "panels/edit_history.h"
 #include "panels/material_picker_panel.h"
+#include "utils/imgui_dialogs.h"
 
 namespace Editor
 {
@@ -106,6 +107,8 @@ namespace Editor
 
         for (auto* panel : Panels)
             panel->Show();
+
+        ImGui::UpdateDialogs();
     }
 
     void ShowContent()
@@ -143,9 +146,6 @@ int main(int argc, char* argv[])
 
 		rlImGuiBegin();
         Editor::ShowUI();
-
-        ImGui::ShowDemoWindow(nullptr);
-       
 		rlImGuiEnd();
 
 		EndDrawing();

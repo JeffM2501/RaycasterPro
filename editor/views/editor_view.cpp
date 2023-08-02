@@ -100,6 +100,9 @@ void EditorView::Zoom(float wheel)
 
 void EditorView::CheckCacheSize(int width, int height)
 {
+	if (MapTilesTexture.id == 0)
+		MapTilesTexture = LoadTexture("resources/textures/textures.png");
+
 	if (MapCacheTexture.id != 0 && MapCacheTexture.texture.width == width && MapCacheTexture.texture.height && height)
 		return;
 

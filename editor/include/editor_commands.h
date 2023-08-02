@@ -72,5 +72,4 @@ namespace EditorCommands
     extern RedoCommand Redo;
 
     CommandSet& GetCommandSet();
-
 }
