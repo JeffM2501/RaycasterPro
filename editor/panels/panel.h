@@ -33,4 +33,6 @@ protected:
 	ImVec2 Size = { 300, 300 };
 
 	bool Visible = true;
+
+	ImGuiWindowFlags AdditionalFlags = 0;
 };

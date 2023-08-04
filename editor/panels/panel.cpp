@@ -9,7 +9,7 @@ void Panel::Show()
 
 	ImGui::SetNextWindowSize(Size);
 
-	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+	ImGuiWindowFlags flags = AdditionalFlags | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 
 	if (HorizontalAlignment != Alignment::Free && VerticalAlignment != Alignment::Free)
 	{

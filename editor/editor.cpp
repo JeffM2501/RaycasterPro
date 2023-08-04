@@ -13,6 +13,7 @@
 #include "views/editor_view.h"
 #include "panels/edit_history.h"
 #include "panels/material_picker_panel.h"
+#include "panels/toolbar_panel.h"
 #include "utils/imgui_dialogs.h"
 
 namespace Editor
@@ -58,7 +59,8 @@ namespace Editor
     void Startup()
     {
         Panels.emplace_back(new EditHistoryPanel()); 
-        Panels.emplace_back(new MaterialPickerPanel());
+        Panels.emplace_back(new MaterialPickerPanel()); 
+        Panels.emplace_back(new ToolbarPanel());
     }
 
     void MainMenu()
@@ -127,7 +129,7 @@ int main(int argc, char* argv[])
 	int screenWidth = 1900;
 	int screenHeight = 900;
 
-	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT);
+	SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
 	InitWindow(screenWidth, screenHeight, "raycasterPro Editor");
     SetExitKey(KEY_NULL);
 	SetTargetFPS(144);
