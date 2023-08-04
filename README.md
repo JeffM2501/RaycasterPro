@@ -3,6 +3,8 @@ This is a hybrid raycaster system.
 It uses traditional raycsting for visibility but uses real OpenGL for rendering.
 This allows for constant time rendering of maps regardless of size, rendering time is only affected by what is in the view.
 
+https://github.com/JeffM2501/RaycasterPro/assets/322174/34425005-4888-45d3-91c0-c663b4dc4284
+
 ## Method of Operation
 The system works by doing a binary search pattern on the rays, from outside in, always checking pairs of rays.
 If the two rays hit different cells then the rays are subdivided and checked again (using flags to not recast the same ray multiple times).
