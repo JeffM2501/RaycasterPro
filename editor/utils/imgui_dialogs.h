@@ -132,6 +132,8 @@ namespace ImGui
             DisplayName = title;
         }
 
+        void* DataPtr = nullptr;
+
         std::function<void(CallbackDialog*)> CreateCallback;
         std::function<void(CallbackDialog*)> ShowCallback;
         std::function<void(DialogResult, CallbackDialog*)> ResultCallback;
@@ -171,11 +173,12 @@ namespace ImGui
                 ResultCallback(result, this);
         }
 
-        static CallbackDialog* Show(const std::string& title, const std::string icon, std::function<void(CallbackDialog*)> showCallback = nullptr, std::function<void(DialogResult, CallbackDialog*)> resultCallback = nullptr)
+        static CallbackDialog* Show(const std::string& title, const std::string icon, std::function<void(CallbackDialog*)> showCallback = nullptr, std::function<void(DialogResult, CallbackDialog*)> resultCallback = nullptr, void* dataPtr = nullptr)
         {
             CallbackDialog* dlog = new CallbackDialog(title, icon);
             dlog->ShowCallback = showCallback;
             dlog->ResultCallback = resultCallback;
+            dlog->DataPtr = dataPtr;
             ImGui::ShowDialog(dlog);
             return dlog;
         }

@@ -43,19 +43,21 @@ HistoryState& MapEditor::GetCurrentState()
 	return EditHistory[EditHistoryIndex];
 }
 
-void MapEditor::SetCell(const Vector2i& loction, uint8_t cellType)
+void MapEditor::SetCell(const Vector2i& location, uint8_t cellType)
 {
-	if (loction.x < 0 || loction.x >= GetCurrentState().Size.x || loction.y < 0 || loction.y > GetCurrentState().Size.y)
+	if (location.x < 0 || location.x >= GetCurrentState().Size.x || location.y < 0 || location.y > GetCurrentState().Size.y)
 		return;
 
 	SaveState("Set Cell");
-	GetCurrentState().Cells[GetCurrentState().GetCellIndex(loction)] = cellType;
+	GetCurrentState().Cells[GetCurrentState().GetCellIndex(location)] = cellType;
 }
 
 void MapEditor::Resize(int newX, int newY)
 {
 	SaveState("Resize");
 	GetCurrentState().Cells.resize(newX * newY);
+	GetCurrentState().Size.x = newX;
+	GetCurrentState().Size.y = newY;
 
 	const HistoryState& oldState = EditHistory[EditHistoryIndex - 1];
 
@@ -65,7 +67,7 @@ void MapEditor::Resize(int newX, int newY)
 		{
 			uint8_t newCell = 0;
 
-			if (x <= oldState.Size.x && y <= oldState.Size.y)
+			if (x < oldState.Size.x && y < oldState.Size.y)
 				newCell = oldState.Cells[oldState.GetCellIndex(x, y)];
 			GetCurrentState().Cells[GetCurrentState().GetCellIndex(x, y)] = newCell;
 		}

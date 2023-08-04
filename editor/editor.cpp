@@ -84,6 +84,9 @@ namespace Editor
 				EditorCommands::Undo.Menu();
 				EditorCommands::Redo.Menu();
 
+                ImGui::Separator();
+                EditorCommands::Resize.Menu();
+
 				ImGui::EndMenu();
 			}
 

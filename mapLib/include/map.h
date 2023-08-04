@@ -7,6 +7,14 @@ struct Vector2i
 {
     int x = -1;
     int y = -1;
+
+    Vector2i() = default;
+    Vector2i(int _x, int _y) : x(_x), y(_y) {}
+    Vector2i(const Vector2i& v)
+    {
+        x = v.x;
+        y = v.y;
+    }
 };
 
 class Map
@@ -34,7 +42,7 @@ public:
 
     inline Vector2i GetCellLocation(size_t index) const
     {
-        return Vector2i{int(index / Width), int(index % Width)};
+        return Vector2i(int(index / Width), int(index % Width));
     }
 
 protected:

@@ -4,6 +4,7 @@
 #include "map_editor.h"
 
 #include "tinyfiledialogs.h"
+#include "utils/imgui_dialogs.h"
 
 constexpr int MapFilterPatternSize = 1;
 constexpr  char* MapFilterPatterns[MapFilterPatternSize] = { "*.mres" };
@@ -23,6 +24,7 @@ namespace EditorCommands
     SaveMapAsCommand SaveMapAs;
 	UndoCommand Undo;
 	RedoCommand Redo;
+    ResizeCommand Resize;
 }
 
 EditorCommand::EditorCommand()
@@ -149,4 +151,38 @@ void RedoCommand::Process()
 bool RedoCommand::IsEnabled() const
 {
     return Editor::GetActiveEditor().CanRedo();
+}
+
+ResizeCommand::ResizeCommand()
+{
+	Name = "Resize";
+    Icon = ICON_FA_EXPAND;
+}
+
+void ResizeCommand::Process()
+{
+    auto onShow = [](ImGui::CallbackDialog* dialog)
+    {
+        Vector2i* size = reinterpret_cast<Vector2i*>(dialog->DataPtr);
+        if (size == nullptr)
+            return;
+
+        ImGui::InputInt("Width", &size->x);
+        ImGui::InputInt("Height", &size->y);
+    };
+
+	auto onResult = [](ImGui::DialogResult result, ImGui::CallbackDialog* dialog)
+	{
+        Vector2i* size = reinterpret_cast<Vector2i*>(dialog->DataPtr);
+		if (size == nullptr)
+			return;
+
+        if (result == ImGui::DialogResult::Accept)
+            Editor::GetActiveEditor().Resize(size->x, size->y);
+        delete(size);
+	};
+
+    Vector2i* size = new Vector2i(Editor::GetActiveEditor().GetCurrentState().Size);
+
+    ImGui::CallbackDialog* dialog = ImGui::CallbackDialog::Show("New Size", ICON_FA_BOX, onShow, onResult, size);
 }

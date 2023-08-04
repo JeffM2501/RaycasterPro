@@ -25,7 +25,7 @@ void MaterialPickerPanel::OnShow()
 		{
 			char text[32] = { 0 };
 			sprintf(text, "###Mat%d", i);
-			int cursorX = ImGui::GetCursorPosX();
+			float cursorX = ImGui::GetCursorPosX();
 			bool selected = ImGui::Selectable(text, i == Editor::GetActiveEditor().GetCurrentMaterial(), ImGuiSelectableFlags_AllowItemOverlap, selectableSize);
 
 			if (selected)
@@ -33,7 +33,7 @@ void MaterialPickerPanel::OnShow()
 
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(cursorX+1);
-			rlImGuiImageRect(&view.GetTileTexture(), buttonSize.x, buttonSize.y, view.GetTileSourceRect(i));
+			rlImGuiImageRect(&view.GetTileTexture(), int(buttonSize.x), int(buttonSize.y), view.GetTileSourceRect(i));
 
 			if (i == Editor::GetActiveEditor().GetCurrentMaterial())
 			{

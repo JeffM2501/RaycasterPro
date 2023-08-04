@@ -60,6 +60,13 @@ public:
 	bool IsEnabled() const override;
 };
 
+class ResizeCommand : public EditorCommand
+{
+public:
+    ResizeCommand();
+    void Process() override;
+};
+
 namespace EditorCommands
 {
     extern QuitCommand Quit;
@@ -70,6 +77,8 @@ namespace EditorCommands
 
     extern UndoCommand Undo;
     extern RedoCommand Redo;
+
+    extern ResizeCommand Resize;
 
     CommandSet& GetCommandSet();
 }
