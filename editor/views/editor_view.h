@@ -32,7 +32,7 @@ public:
 
 	inline Rectangle GetTileSourceRect(int tile)
 	{
-		return Rectangle{ float(tile * MapTilesTexture.height), 0, float(MapTilesTexture.height), float(MapTilesTexture.height) };
+		return Rectangle{ float((tile-1) * MapTilesTexture.height), 0, float(MapTilesTexture.height), float(MapTilesTexture.height) };
 	}
 	
 

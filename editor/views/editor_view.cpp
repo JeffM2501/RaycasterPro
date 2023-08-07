@@ -21,14 +21,16 @@ void EditorView::Shutdown()
 
 void EditorView::Show()
 {
+    Vector2 mousePos = GetMousePosition();
+    mousePos.y = GetScreenHeight() - mousePos.y;
+    Vector2 mouseWorldPos = GetScreenToWorld2D(mousePos, ViewCamea);
+
+	ImVec2 mouseMapPos(mouseWorldPos.x / CellRenderSize, mouseWorldPos.y / CellRenderSize);
+
 	if (HasFocus)
 	{
-		Vector2 mousePos = GetMousePosition();
-		mousePos.y = GetScreenHeight() - mousePos.y;
-		Vector2 mouseWorldPos = GetScreenToWorld2D(mousePos, ViewCamea);
-
-		HoveredCell.x = int(floorf(mouseWorldPos.x / CellRenderSize));
-		HoveredCell.y = int(floorf(mouseWorldPos.y / CellRenderSize));
+		HoveredCell.x = int(floorf(mouseMapPos.x));
+		HoveredCell.y = int(floorf(mouseMapPos.y));
 	}
 
 	CheckCacheSize(GetScreenWidth(), GetScreenHeight());
@@ -64,8 +66,14 @@ void EditorView::Show()
 
 	if (HasFocus)
 	{ 
-		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-			Editor.SetCell(HoveredCell, 0);
+        auto* activeTool = Editor.GetTools().GetActiveTool();
+		if (activeTool)
+		{
+			activeTool->OnHover(mouseMapPos);
+
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+				activeTool->OnClick(mouseMapPos);
+		}
 	}
 }
 

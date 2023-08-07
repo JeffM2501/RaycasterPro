@@ -21,7 +21,7 @@ void MaterialPickerPanel::OnShow()
 		ImVec2 selectableSize(150, 100);
 		ImVec2 buttonSize(100, 100);
 
-		for (int i = 0; i < view.GetTileCount(); i++)
+		for (int i = 1; i <= view.GetTileCount(); i++)
 		{
 			char text[32] = { 0 };
 			sprintf(text, "###Mat%d", i);

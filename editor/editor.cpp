@@ -47,6 +47,8 @@ namespace Editor
     {
         EditorCommands::GetCommandSet().CheckShortcuts();
 
+        ActiveEditor.Update();
+
         ActiveView.HasFocus = !ImGui::GetIO().WantCaptureMouse;
 		if (!ActiveView.HasFocus)
 			return;
@@ -133,6 +135,11 @@ int main(int argc, char* argv[])
 	InitWindow(screenWidth, screenHeight, "raycasterPro Editor");
     SetExitKey(KEY_NULL);
 	SetTargetFPS(144);
+
+    Image icon = LoadImage("resources/editor_icon.png");
+    ImageFormat(&icon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    SetWindowIcon(icon);
+    UnloadImage(icon);
 
 	rlImGuiSetup(true);
 	ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true;

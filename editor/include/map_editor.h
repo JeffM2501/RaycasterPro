@@ -2,6 +2,7 @@
 
 #include "map.h"
 #include "map_serializer.h"
+#include "tool_system.h"
 
 #include <string>
 #include <string_view>
@@ -31,6 +32,8 @@ class MapEditor
 public:
     MapEditor();
 
+    void Update();
+
     void Clear();
     void Load(std::string_view filepath);
     void Save();
@@ -59,6 +62,8 @@ public:
     inline const int GetCurrentMaterial() const { return CurrentMaterial; }
     inline void SetCurrentMaterial(int materialIndex) { CurrentMaterial = materialIndex; }
 
+    inline ToolSystem& GetTools() { return ToolManager; }
+
 protected:
     void FromMap(Map& map);
     Map ToMap();
@@ -71,5 +76,7 @@ protected:
     size_t EditHistoryIndex = 0;
     std::vector<HistoryState> EditHistory;
 
-    int CurrentMaterial = 0;
+    int CurrentMaterial = 1;
+
+    ToolSystem ToolManager;
 };

@@ -30,6 +30,7 @@
 #include "raymath.h"
 
 #include "map.h"
+#include "map_serializer.h"
 #include "raycaster.h"
 #include "mini_map.h"
 #include "view_render.h"
@@ -162,7 +163,7 @@ void DrawGun()
 {
     Rectangle sourceRect = { 0, 0, float(GunTexture.width), float(GunTexture.height) };
 
-    float scale = 3.5f;
+    float scale = 4.0f;
 
     Rectangle destRect = { GetScreenWidth()*0.5f,float(GetScreenHeight()), GunTexture.width * scale, GunTexture.height * scale };
 
@@ -216,7 +217,7 @@ int main()
     InitWindow(width, height, "RaycasterPro Example");
     SetTargetFPS(250);
 
-    Image icon = LoadImage("icon.png");
+    Image icon = LoadImage("game_icon.png");
     ImageFormat(&icon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
     SetWindowIcon(icon);
     UnloadImage(icon);
@@ -225,6 +226,9 @@ int main()
     DisableCursor();
     UseButtonForMouse = false;
 #endif
+
+    MapSerializer serializer;
+    WorldMap = serializer.ReadResource("maps/test.mres");
 
     Raycaster raycaster(WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
     MiniMap miniMap(20, raycaster, WorldMap);

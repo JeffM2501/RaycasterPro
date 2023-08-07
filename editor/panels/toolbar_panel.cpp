@@ -2,6 +2,7 @@
 
 #include "extras/IconsFontAwesome6.h"
 #include "editor.h"
+#include "tool_system.h"
 
 ToolbarPanel::ToolbarPanel()
 {
@@ -11,37 +12,18 @@ ToolbarPanel::ToolbarPanel()
 	HorizontalAlignment = Panel::Alignment::Minium;
 	VerticalAlignment = Panel::Alignment::Minium;
 
-	Size = ImVec2(32*6, 32);
+	Size = ImVec2(26 *6, 32);
 }
 
 void ToolbarPanel::OnShow()
 {
-	ImGui::Button(ICON_FA_ARROW_POINTER);
-	if (ImGui::IsItemHovered())
-		ImGui::SetTooltip("%s", "Select");
-	ImGui::SameLine();
+	auto& toolManager = Editor::GetActiveEditor().GetTools();
 
-	ImGui::Button(ICON_FA_PAINT_ROLLER);
-	if (ImGui::IsItemHovered())
-		ImGui::SetTooltip("%s", "Paint Walls");
-	ImGui::SameLine();
-
-	ImGui::Button(ICON_FA_ARROW_DOWN_LONG);
-	if (ImGui::IsItemHovered())
-		ImGui::SetTooltip("%s", "Paint Floor");
-	ImGui::SameLine();
-
-	ImGui::Button(ICON_FA_ARROW_UP_LONG);
-	if (ImGui::IsItemHovered())
-		ImGui::SetTooltip("%s", "Paint Ceiling");
-	ImGui::SameLine();
-
-	ImGui::Button(ICON_FA_DOOR_OPEN);
-	if (ImGui::IsItemHovered())
-		ImGui::SetTooltip("%s", "Set Door");
-	ImGui::SameLine();
-
-	ImGui::Button(ICON_FA_PERSON);
-	if (ImGui::IsItemHovered())
-		ImGui::SetTooltip("%s", "Set Object");
+	Size = ImVec2(26.0f * toolManager.GetTools().size(), 32);
+	
+	for (auto* tool : toolManager.GetTools())
+	{
+		tool->Show(tool == toolManager.GetActiveTool());
+		ImGui::SameLine();
+	}
 }

@@ -10,28 +10,27 @@ class Tool
 {
 public:
     virtual ~Tool() = default;
+    inline virtual void Show(bool isActve) = 0;
+    inline virtual void OnClick(const ImVec2& position) {}
+    inline virtual void OnHover(const ImVec2& position) {}
 
 protected:
     friend class ToolSystem;
 
     Tool() = default;
-
-    inline virtual void Show(bool isActve) = 0;
     inline virtual void OnActivate() {}
     inline virtual void OnDeactivate() {}
 
     inline virtual bool OnUpdate() { return false; }
-
-    inline virtual void OnClick() {}
 };
 
 class ButtonTool : public Tool
 {
+public:
+    void Show(bool isActve) override;
+
 protected:
-	virtual void Show(bool isActve) = 0;
-
-    inline virtual bool OnUpdate() { return false; }
-
+    inline virtual bool OnUpdate() { return IsActivated; }
     bool IsActivated = false;
     std::string Icon = ICON_FA_QUESTION;
     std::string ToolTip;
@@ -44,6 +43,7 @@ protected:
 	Tool* ActiveTool = nullptr;
 
 public:
+    ToolSystem();
     virtual ~ToolSystem();
 
     template<class T>

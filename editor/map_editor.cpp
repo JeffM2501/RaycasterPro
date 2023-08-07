@@ -5,6 +5,11 @@ MapEditor::MapEditor()
 	Clear();
 }
 
+void MapEditor::Update()
+{
+	ToolManager.Update();
+}
+
 void MapEditor::Clear()
 {
 	EditHistoryIndex = 0;

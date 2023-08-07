@@ -17,7 +17,7 @@ bool MapSerializer::WriteResource(const Map& map, std::string_view filepath)
     int xSize = int(map.GetWidth());
     int ySize = int(map.GetHeight());
 
-    if (fwrite(&xSize, 4, 1, fp) != 4 || fwrite(&ySize, 4, 1, fp) != 4)
+    if (fwrite(&xSize, 4, 1, fp) != 1 || fwrite(&ySize, 4, 1, fp) != 1)
         valid = false;
 
     if (xSize == 0 || ySize == 0)
@@ -58,7 +58,7 @@ Map MapSerializer::ReadResource(std::string_view filepath)
     int xSize = 0;
     int ySize = 0;
 
-    if (fread(&xSize, 4, 1, fp) != 4 || fread(&ySize, 4, 1, fp) != 4)
+    if (fread(&xSize, 4, 1, fp) != 1 || fread(&ySize, 4, 1, fp) != 1)
         valid = false;
 
     if (xSize == 0 || ySize == 0)

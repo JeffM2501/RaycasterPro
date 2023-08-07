@@ -82,7 +82,7 @@ SaveMapCommand::SaveMapCommand()
 {
     Name = "Save...";
     Icon = ICON_FA_FLOPPY_DISK;
-    ShortcutKey = ImGuiKey_O;
+    ShortcutKey = ImGuiKey_S;
     Modifyers.insert(ImGuiKey_ModCtrl);
 }
 
@@ -101,20 +101,30 @@ void SaveMapCommand::Process()
 
 bool SaveMapCommand::IsEnabled() const
 {
-    return Editor::GetActiveEditor().IsDirty();
+    auto& editor = Editor::GetActiveEditor();
+    return editor.IsDirty() || editor.MapFilepath.empty();
 }
 
 SaveMapAsCommand::SaveMapAsCommand()
 {
     Name = "Save As...";
     Icon = ICON_FA_FILE_EXPORT;
-    ShortcutKey = ImGuiKey_O;
+    ShortcutKey = ImGuiKey_S;
     Modifyers.insert(ImGuiKey_ModCtrl);
+    Modifyers.insert(ImGuiKey_ModShift);
 }
 
 void SaveMapAsCommand::Process()
 {
-    const char* saveFileName = tinyfd_saveFileDialog("Save Map As", Editor::GetActiveEditor().MapFilepath.c_str(), MapFilterPatternSize, MapFilterPatterns, nullptr);
+    if (Editor::GetActiveEditor().MapFilepath.empty())
+    {
+        const char* saveFileName = tinyfd_saveFileDialog("Save Map As", Editor::GetActiveEditor().MapFilepath.c_str(), MapFilterPatternSize, MapFilterPatterns, nullptr);
+        if (saveFileName != nullptr)
+        {
+            Editor::GetActiveEditor().MapFilepath = saveFileName;
+        }
+    }
+    Editor::GetActiveEditor().Save();
 }
 
 UndoCommand::UndoCommand()
