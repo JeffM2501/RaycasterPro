@@ -21,7 +21,14 @@ void ToolSystem::Update()
 	}
 }
 
-void ButtonTool::Show(bool isActve)
+void ButtonTool::Show(bool isAcitve)
 {
-	ImGui::togglebu
+	IsActivated = ImGui::Button(Icon.c_str());
+
+	if (isAcitve)
+	{
+		ImVec2 min = ImGui::GetItemRectMin();
+		ImVec2 max = ImGui::GetItemRectMax();
+		ImGui::GetForegroundDrawList()->AddRect(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyle().Colors[ImGuiCol_NavHighlight]));
+	}
 }

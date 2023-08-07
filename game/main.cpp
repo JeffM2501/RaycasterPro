@@ -216,6 +216,11 @@ int main()
     InitWindow(width, height, "RaycasterPro Example");
     SetTargetFPS(250);
 
+    Image icon = LoadImage("icon.png");
+    ImageFormat(&icon, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8);
+    SetWindowIcon(icon);
+    UnloadImage(icon);
+
 #ifndef _DEBUG
     DisableCursor();
     UseButtonForMouse = false;
