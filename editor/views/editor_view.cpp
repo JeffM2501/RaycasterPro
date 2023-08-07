@@ -71,7 +71,7 @@ void EditorView::Show()
 		{
 			activeTool->OnHover(mouseMapPos);
 
-			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonPressed(MOUSE_RIGHT_BUTTON))
+			if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON))
 				activeTool->OnClick(mouseMapPos);
 		}
 	}
