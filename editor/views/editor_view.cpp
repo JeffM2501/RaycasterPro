@@ -48,7 +48,7 @@ void EditorView::Show()
 	{
 		for (int x = 0; x < currentState.Size.x; x++)
 		{
-			if (currentState.GetCell(x, y) != 0)
+			if (currentState.GetCellSolid(x, y) != 0)
 				DrawRectangleRec(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, WHITE);
 			DrawRectangleLinesEx(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, 1, BLACK);
 		}

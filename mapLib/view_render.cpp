@@ -48,16 +48,14 @@ void ViewRenderer::Draw(const EntityLocation& loc)
 
     for (const auto& pos : Caster.GetHitCelList())
     {
-        uint8_t cellType = WorldMap->GetCell(pos.x, pos.y);
-
-        if (cellType == 0)
+        if (WorldMap->GetCellSolid(pos.x,pos.y) == 0)
         {
             DrawCellFloor(pos.x, pos.y);
             DrawCellCeiling(pos.x, pos.y);
         }
         else
         {
-            DrawCellWall(pos.x, pos.y, cellType);
+            DrawCellWall(pos.x, pos.y, WorldMap->GetCellTile(pos.x, pos.y));
         }
     }
 
@@ -150,7 +148,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     rlBegin(RL_QUADS);
     Color tint = WHITE;
 
-    if (WorldMap->GetCell(x, y + 1) == 0)
+    if (!WorldMap->GetCellSolid(x, y + 1))
     {
         FaceCount++;
         // north
@@ -173,7 +171,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     }
 
     // south
-    if (WorldMap->GetCell(x, y - 1) == 0)
+    if (!WorldMap->GetCellSolid(x, y - 1))
     {
         FaceCount++;
 
@@ -195,7 +193,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     }
 
     // east
-    if (WorldMap->GetCell(x + 1, y) == 0)
+    if (!WorldMap->GetCellSolid(x + 1, y))
     {
         FaceCount++;
         tint = wallColors[2];
@@ -216,7 +214,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     }
 
     // west
-    if (WorldMap->GetCell(x - 1, y) == 0)
+    if (!WorldMap->GetCellSolid(x - 1, y))
     {
         FaceCount++;
         tint = wallColors[3];

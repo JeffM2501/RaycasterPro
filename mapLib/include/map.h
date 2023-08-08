@@ -23,8 +23,9 @@ public:
     Map();
     Map(const std::vector<uint8_t>& cells, int width, int height);
 
-    uint8_t GetCell(int x, int y) const;
-    uint8_t GetCell(const Vector2i& location) const { return GetCell(location.x, location.y); }
+    bool GetCellSolid(int x, int y) const;
+
+    uint8_t GetCellTile(int x, int y) const;
 
     bool GetCellPassable(int x, int y) const;
 

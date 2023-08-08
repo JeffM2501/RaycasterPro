@@ -39,13 +39,23 @@ Map::Map(const std::vector<uint8_t>& cells, int width, int height)
     Height = height;
 }
 
-uint8_t Map::GetCell(int x, int y) const
+bool Map::GetCellSolid(int x, int y) const
 {
+    if (x < 0 || x >= Width || y < 0 || y >= Height)
+        return false;
+
     int index = y * (int)Width + x;
     if (index < 0 || index >= Cells.size())
-        return 0;
+        return false;
 
-    return Cells[index];
+    return Cells[index] != 0;
+}
+
+uint8_t Map::GetCellTile(int x, int y) const
+{
+    if (x < 0 || x >= Width || y < 0 || y >= Height)
+        return 0;
+    return Cells[y * (int)Width + x];
 }
 
 bool Map::GetCellPassable(int x, int y) const

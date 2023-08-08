@@ -55,7 +55,7 @@ void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
     int mapX = int(floor(pos.x));
     int mapY = int(floor(pos.y));
 
-    ray.HitGridType = WorldMap->GetCell(mapX, mapY);
+    ray.HitGridType = WorldMap->GetCellTile(mapX, mapY);
 
     //length of ray from current position to next x or y-side
     float sideDistX = 0;
@@ -127,7 +127,7 @@ void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
         if (mapX >= WorldMap->GetWidth() || mapX < 0 || mapY >= WorldMap->GetHeight() || mapY < 0)
             break;
 
-        ray.HitGridType = WorldMap->GetCell(mapX, mapY);
+        ray.HitGridType = WorldMap->GetCellTile(mapX, mapY);
         ray.HitCellIndex = WorldMap->GetCellIndex(mapX, mapY);
         ray.TargetCell.x = mapX;
         ray.TargetCell.y = mapY;

@@ -36,7 +36,7 @@ void MiniMap::SetGridSize(int size)
     {
         for (uint8_t x = 0; x < WorldMap.GetWidth(); x++)
         {
-            if (WorldMap.GetCell(x, y) != 0)
+            if (WorldMap.GetCellSolid(x, y))
                 DrawRectangle(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, WHITE);
             DrawRectangleLines(x * MapPixelSize, y * MapPixelSize, MapPixelSize, MapPixelSize, BLACK);
         }
@@ -84,7 +84,7 @@ void MiniMap::Render(const EntityLocation& loc)
 
     for (const auto& cell : Caster.GetHitCelList())
     {
-        if (WorldMap.GetCell(cell.x, cell.y) != 0)
+        if (WorldMap.GetCellSolid(cell.x, cell.y))
             DrawRectangle(cell.x * MapPixelSize, cell.y * MapPixelSize, MapPixelSize, MapPixelSize, ColorAlpha(PURPLE, 0.5f));
         else
             DrawRectangle(cell.x * MapPixelSize, cell.y * MapPixelSize, MapPixelSize, MapPixelSize, ColorAlpha(DARKPURPLE, 0.5f));

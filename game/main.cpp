@@ -235,7 +235,7 @@ int main()
     ViewRenderer renderer(raycaster, &WorldMap);
     MapCollider collider(WorldMap);
 
-    renderer.SetTileTexture(LoadTexture("textures/texture.png"));
+    renderer.SetTileTexture(LoadTexture("textures/textures.png"));
 
     renderer.SetFOVY(ViewFOVY);
 

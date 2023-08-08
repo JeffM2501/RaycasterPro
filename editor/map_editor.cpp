@@ -57,7 +57,7 @@ void MapEditor::SetCell(const Vector2i& location, uint8_t cellType)
 		return;
 
 	SaveState("Set Cell");
-	GetCurrentState().Cells[GetCurrentState().GetCellIndex(location)] = cellType;
+	GetCurrentState().SetCellState(location.x, location.y, cellType == 0 ? CellState::Empty : CellState::Solid, cellType);
 }
 
 void MapEditor::Resize(int newX, int newY)
@@ -76,8 +76,8 @@ void MapEditor::Resize(int newX, int newY)
 			uint8_t newCell = 0;
 
 			if (x < oldState.Size.x && y < oldState.Size.y)
-				newCell = oldState.Cells[oldState.GetCellIndex(x, y)];
-			GetCurrentState().Cells[GetCurrentState().GetCellIndex(x, y)] = newCell;
+				newCell = oldState.GetCellTile(x, y);
+			GetCurrentState().SetCellState(x,y, newCell == 0 ? CellState::Empty : CellState::Solid, newCell);
 		}
 	}
 }

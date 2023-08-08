@@ -52,7 +52,7 @@ void PreviewPanel::OnShow()
     BeginTextureMode(PreviewTexture);
     ClearBackground(SKYBLUE);
     // fake skybox
-    DrawRectangle(0, PreviewTexture.texture.height * 0.5f, PreviewTexture.texture.width, PreviewTexture.texture.height, DARKGREEN);
+    DrawRectangle(0, PreviewTexture.texture.height / 2, PreviewTexture.texture.width, PreviewTexture.texture.height, DARKGREEN);
     Renderer.Draw(loc);
     EndTextureMode();
 
