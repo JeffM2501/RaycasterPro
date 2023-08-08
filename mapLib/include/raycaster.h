@@ -35,7 +35,7 @@ struct RayResult
 class Raycaster
 {
 public:
-    Raycaster(Map& map, int renderWidth, float renderFOV);
+    Raycaster(const Map* map, int renderWidth, float renderFOV);
 
     void StartFrame(const EntityLocation& loc);
 
@@ -46,6 +46,8 @@ public:
 
     inline int GetCastCount() const { return CastCount; }
 
+    void SetMap(const Map* map);
+
 protected:
     void CastRay(RayResult& ray, const Vector2& pos);
 
@@ -55,7 +57,7 @@ protected:
 
     void SetCellVis(int x, int y);
 
-    Map& WorldMap;
+    const Map* WorldMap = nullptr;
     int RenderWidth;
     float RenderFOVX;
 

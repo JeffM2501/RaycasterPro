@@ -31,6 +31,7 @@ protected:
 	Alignment VerticalAlignment = Alignment::Minium;
 
 	ImVec2 Size = { 300, 300 };
+	ImVec2 Offset = { 0, 0 };
 
 	bool Visible = true;
 

@@ -2,16 +2,27 @@
 #include "view_render.h"
 #include "rlgl.h"
 
-ViewRenderer::ViewRenderer(const Raycaster& raycaster, const Map& map)
+ViewRenderer::ViewRenderer(const Raycaster& raycaster, const Map* map)
     : Caster(raycaster)
     , WorldMap(map)
 {
-    MapTiles = LoadTexture("textures/textures.png");
-    GenTextureMipmaps(&MapTiles);
-    SetTextureFilter(MapTiles, TEXTURE_FILTER_ANISOTROPIC_4X);
-
     ViewCamera.fovy = 40;
     ViewCamera.up.z = 1;
+}
+
+void ViewRenderer::SetTileTexture(const Texture2D& texture)
+{
+    MapTiles = texture;
+    if (MapTiles.mipmaps != 0)
+    {
+        GenTextureMipmaps(&MapTiles);
+        SetTextureFilter(MapTiles, TEXTURE_FILTER_ANISOTROPIC_4X);
+    }
+}
+
+void ViewRenderer::SetMap(const Map* map)
+{
+    WorldMap = map;
 }
 
 void ViewRenderer::Unload()
@@ -21,6 +32,9 @@ void ViewRenderer::Unload()
 
 void ViewRenderer::Draw(const EntityLocation& loc)
 {
+    if (!WorldMap)
+        return;
+
     ViewCamera.position.x = loc.Position.x;
     ViewCamera.position.y = loc.Position.y;
     ViewCamera.position.z = 0.5f;
@@ -34,7 +48,7 @@ void ViewRenderer::Draw(const EntityLocation& loc)
 
     for (const auto& pos : Caster.GetHitCelList())
     {
-        uint8_t cellType = WorldMap.GetCell(pos.x, pos.y);
+        uint8_t cellType = WorldMap->GetCell(pos.x, pos.y);
 
         if (cellType == 0)
         {
@@ -122,6 +136,9 @@ void ViewRenderer::DrawCellCeiling(int x, int y)
 
 void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
 {
+    if (!WorldMap)
+        return;
+
     float uStart = 0;
     float uEnd = 1;
 
@@ -133,7 +150,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     rlBegin(RL_QUADS);
     Color tint = WHITE;
 
-    if (WorldMap.GetCell(x, y + 1) == 0)
+    if (WorldMap->GetCell(x, y + 1) == 0)
     {
         FaceCount++;
         // north
@@ -156,7 +173,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     }
 
     // south
-    if (WorldMap.GetCell(x, y - 1) == 0)
+    if (WorldMap->GetCell(x, y - 1) == 0)
     {
         FaceCount++;
 
@@ -178,7 +195,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     }
 
     // east
-    if (WorldMap.GetCell(x + 1, y) == 0)
+    if (WorldMap->GetCell(x + 1, y) == 0)
     {
         FaceCount++;
         tint = wallColors[2];
@@ -199,7 +216,7 @@ void ViewRenderer::DrawCellWall(int x, int y, uint8_t cellType)
     }
 
     // west
-    if (WorldMap.GetCell(x - 1, y) == 0)
+    if (WorldMap->GetCell(x - 1, y) == 0)
     {
         FaceCount++;
         tint = wallColors[3];

@@ -1,6 +1,6 @@
 #include "raycaster.h"
 
-Raycaster::Raycaster(Map& map, int renderWidth, float renderFOV)
+Raycaster::Raycaster(const Map* map, int renderWidth, float renderFOV)
     : WorldMap(map)
     , RenderWidth(renderWidth)
     , RenderFOVX(renderFOV)
@@ -10,9 +10,17 @@ Raycaster::Raycaster(Map& map, int renderWidth, float renderFOV)
 
     RaySet.resize(renderWidth);
 
+    SetMap(map);
+}
 
-    CellStatus.resize(WorldMap.GetWidth() * WorldMap.GetHeight());
-    CellStatus.assign(CellStatus.size(), 0);
+void Raycaster::SetMap(const Map* map)
+{
+    if (map)
+    {
+        WorldMap = map;
+        CellStatus.resize(WorldMap->GetWidth() * WorldMap->GetHeight());
+        CellStatus.assign(CellStatus.size(), 0);
+    }
 }
 
 void Raycaster::StartFrame(const EntityLocation& loc)
@@ -38,6 +46,9 @@ void Raycaster::StartFrame(const EntityLocation& loc)
 void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
 {
     ray.Distance = -1;
+    if (!WorldMap)
+        return;
+
     CastCount++;
 
     // The current grid point we are in
@@ -111,11 +122,11 @@ void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
             side = true;
         }
 
-        if (mapX >= WorldMap.GetWidth() || mapX < 0 || mapY >= WorldMap.GetHeight() || mapY < 0)
+        if (mapX >= WorldMap->GetWidth() || mapX < 0 || mapY >= WorldMap->GetHeight() || mapY < 0)
             break;
 
-        ray.HitGridType = WorldMap.GetCell(mapX, mapY);
-        ray.HitCellIndex = WorldMap.GetCellIndex(mapX, mapY);
+        ray.HitGridType = WorldMap->GetCell(mapX, mapY);
+        ray.HitCellIndex = WorldMap->GetCellIndex(mapX, mapY);
         ray.TargetCell.x = mapX;
         ray.TargetCell.y = mapY;
 
@@ -219,13 +230,19 @@ void Raycaster::UpdateRayset(const EntityLocation& loc)
 
 bool Raycaster::IsCellVis(int x, int y) const
 {
-    int index = y * (int)WorldMap.GetWidth() + x;
+    if (!WorldMap)
+        return false;
+
+    int index = y * (int)WorldMap->GetWidth() + x;
     return CellStatus[index] == 1;
 }
 
 void Raycaster::SetCellVis(int x, int y)
 {
-    int index = y * (int)WorldMap.GetWidth() + x;
+    if (!WorldMap)
+        return;
+
+    int index = y * (int)WorldMap->GetWidth() + x;
     uint8_t& id = CellStatus[index];
     if (id == 1)
         return;

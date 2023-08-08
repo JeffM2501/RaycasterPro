@@ -13,6 +13,7 @@
 #include "views/editor_view.h"
 #include "panels/edit_history.h"
 #include "panels/material_picker_panel.h"
+#include "panels/preview_panel.h"
 #include "panels/toolbar_panel.h"
 #include "utils/imgui_dialogs.h"
 
@@ -62,7 +63,8 @@ namespace Editor
     {
         Panels.emplace_back(new EditHistoryPanel()); 
         Panels.emplace_back(new MaterialPickerPanel()); 
-        Panels.emplace_back(new ToolbarPanel());
+        Panels.emplace_back(new ToolbarPanel()); 
+        Panels.emplace_back(new PreviewPanel());
     }
 
     void MainMenu()
@@ -111,6 +113,8 @@ namespace Editor
     void ShowUI()
     {
         MainMenu();
+
+    //    ImGui::ShowDemoWindow(nullptr);
 
         for (auto* panel : Panels)
             panel->Show();

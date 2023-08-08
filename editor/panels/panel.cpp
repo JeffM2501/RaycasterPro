@@ -13,12 +13,12 @@ void Panel::Show()
 
 	if (HorizontalAlignment != Alignment::Free && VerticalAlignment != Alignment::Free)
 	{
-		ImVec2 pos(0, ImGui::GetTextLineHeight() + ImGui::GetStyle().ItemSpacing.y);
+		ImVec2 pos(Offset.x, ImGui::GetTextLineHeight() + ImGui::GetStyle().ItemSpacing.y + Offset.y);
 		if (HorizontalAlignment == Alignment::Maxium)
-			pos.x = GetScreenWidth() - Size.x;
+			pos.x = GetScreenWidth() - Size.x - Offset.x;
 
 		if (VerticalAlignment == Alignment::Maxium)
-			pos.y = GetScreenHeight() - Size.y;
+			pos.y = GetScreenHeight() - Size.y - Offset.y;
 
 		flags |= ImGuiWindowFlags_NoMove;
 

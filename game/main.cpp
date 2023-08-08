@@ -126,7 +126,7 @@ void UpdateMovement(MapCollider& collider)
         rotation -= rotationSpeed;
 
     if (!UseButtonForMouse || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-        rotation -= GetMouseDelta().x / 100.0f;
+        rotation -= GetMouseDelta().x / (GetScreenWidth()/4.0f);
 
     // rotate the player and the camera plane
     Player.Facing = Vector2Rotate(Player.Facing, rotation);
@@ -230,10 +230,12 @@ int main()
     MapSerializer serializer;
     WorldMap = serializer.ReadResource("maps/test.mres");
 
-    Raycaster raycaster(WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
+    Raycaster raycaster(&WorldMap, GetScreenWidth(), GetFOVX(ViewFOVY));
     MiniMap miniMap(20, raycaster, WorldMap);
-    ViewRenderer renderer(raycaster, WorldMap);
+    ViewRenderer renderer(raycaster, &WorldMap);
     MapCollider collider(WorldMap);
+
+    renderer.SetTileTexture(LoadTexture("textures/texture.png"));
 
     renderer.SetFOVY(ViewFOVY);
 

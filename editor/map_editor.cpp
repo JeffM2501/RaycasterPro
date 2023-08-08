@@ -16,8 +16,8 @@ void MapEditor::Clear()
 	EditHistory.clear();
 	EditHistory.emplace_back(HistoryState{ "New Map" });
 
-	Map defaultMap;
-	FromMap(defaultMap);
+	WorkingMap = Map();
+	FromMap();
 }
 
 void MapEditor::Load(std::string_view filepath)
@@ -29,8 +29,8 @@ void MapEditor::Load(std::string_view filepath)
 	EditHistory.emplace_back(HistoryState{ "Load Map" });
 
 	MapSerializer serializer;
-
-	FromMap(serializer.ReadResource(filepath));
+	WorkingMap = serializer.ReadResource(filepath);
+	FromMap();
 
 	DirtyFlag = false;
 }
@@ -38,7 +38,7 @@ void MapEditor::Load(std::string_view filepath)
 void MapEditor::Save()
 {
 	MapSerializer serializer;
-	serializer.WriteResource(ToMap(), MapFilepath);
+	serializer.WriteResource(WorkingMap, MapFilepath);
 
 	DirtyFlag = false;
 }
@@ -115,17 +115,17 @@ bool MapEditor::CanRedo() const
 	return EditHistory.size() > EditHistoryIndex;
 }
 
-void MapEditor::FromMap(Map& map)
+void MapEditor::FromMap()
 {
-	GetCurrentState().Size.x = map.GetWidth();
-	GetCurrentState().Size.y = map.GetHeight();
+	GetCurrentState().Size.x = WorkingMap.GetWidth();
+	GetCurrentState().Size.y = WorkingMap.GetHeight();
 
-	GetCurrentState().Cells = map.GetCells();
+	GetCurrentState().Cells = WorkingMap.GetCells();
 }
 
-Map MapEditor::ToMap()
+void MapEditor::ToMap()
 {
-	return Map(GetCurrentState().Cells, size_t(GetCurrentState().Size.x), size_t(GetCurrentState().Size.y));
+	WorkingMap = Map(GetCurrentState().Cells, size_t(GetCurrentState().Size.x), size_t(GetCurrentState().Size.y));
 }
 
 void MapEditor::SaveState(std::string_view eventName)

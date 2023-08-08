@@ -64,9 +64,17 @@ public:
 
     inline ToolSystem& GetTools() { return ToolManager; }
 
+    inline const Map& GetWorkingMap() 
+    { 
+        if (!MapValid)
+            ToMap();
+        MapValid = true;
+        return WorkingMap;
+    }
+
 protected:
-    void FromMap(Map& map);
-    Map ToMap();
+    void FromMap();
+    void ToMap();
 
     void SaveState(std::string_view eventName);
 
@@ -79,4 +87,7 @@ protected:
     int CurrentMaterial = 1;
 
     ToolSystem ToolManager;
+
+    Map WorkingMap;
+    bool MapValid = false;
 };

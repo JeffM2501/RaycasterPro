@@ -6,7 +6,9 @@
 class ViewRenderer
 {
 public:
-    ViewRenderer(const Raycaster& raycaster, const Map& map);
+    ViewRenderer(const Raycaster& raycaster, const Map* map);
+
+    void SetTileTexture(const Texture2D& texture);
 
     void Unload();
 
@@ -17,6 +19,8 @@ public:
 
     inline int GetFaceCount() const { return FaceCount; }
 
+    void SetMap(const Map* map);
+
 protected:
 
     void DrawCellFloor(int x, int y);
@@ -26,7 +30,7 @@ protected:
     void GetCellTypeUs(uint8_t cellType, float& uStart, float& uEnd);
        
     const Raycaster& Caster;
-    const Map& WorldMap;
+    const Map* WorldMap;
 
     Texture2D MapTiles = { 0 };
 
