@@ -16,7 +16,7 @@ bool MapCollider::Move(EntityLocation& loc, const Vector2& desiredMotion, float 
 	{
 		for (int x = int(loc.Position.x - 1); x <= int(loc.Position.x + 1); x++)
 		{
-			if (WorldMap.GetCell(x, y) != 0)
+			if (!WorldMap.GetCellPassable(x, y))
 			{
 				// check rectangle
 

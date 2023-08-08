@@ -26,6 +26,8 @@ public:
     uint8_t GetCell(int x, int y) const;
     uint8_t GetCell(const Vector2i& location) const { return GetCell(location.x, location.y); }
 
+    bool GetCellPassable(int x, int y) const;
+
     inline int GetWidth() const { return Width; }
     inline int GetHeight() const { return Height; }
 

@@ -47,3 +47,15 @@ uint8_t Map::GetCell(int x, int y) const
 
     return Cells[index];
 }
+
+bool Map::GetCellPassable(int x, int y) const
+{
+    if (x < 0 || x >= Width || y < 0 || y >= Height)
+        return false;
+
+    int index = y * (int)Width + x;
+    if (index < 0 || index >= Cells.size())
+        return false;
+
+    return Cells[index] == 0;
+}

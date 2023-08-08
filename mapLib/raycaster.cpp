@@ -55,6 +55,8 @@ void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
     int mapX = int(floor(pos.x));
     int mapY = int(floor(pos.y));
 
+    ray.HitGridType = WorldMap->GetCell(mapX, mapY);
+
     //length of ray from current position to next x or y-side
     float sideDistX = 0;
     float sideDistY = 0;
@@ -192,6 +194,9 @@ bool Raycaster::CastRayPair(int minPixel, int maxPixel, const EntityLocation& lo
         CastRay(maxRay, loc.Position);
     }
 
+    if (maxRay.Distance < 0 && minRay.Distance < 0)
+        return true;
+
     return minRay.HitCellIndex == maxRay.HitCellIndex;
 }
 
@@ -215,13 +220,16 @@ void Raycaster::UpdateRayset(const EntityLocation& loc)
 
         if (!CastRayPair(min, max, loc))
         {
-            int bisector = ((max - min) / 2) + min;
+            if (max - min > 1)
+            {
+                int bisector = ((max - min) / 2) + min;
 
-            if (min != bisector)
-                pendingCasts.emplace_back(min, bisector);
+                if (min != bisector)
+                    pendingCasts.emplace_back(min, bisector);
 
-            if (max != bisector)
-                pendingCasts.emplace_back(bisector, max);
+                if (max != bisector)
+                    pendingCasts.emplace_back(bisector, max);
+            }
         }
 
         index++;
@@ -230,7 +238,7 @@ void Raycaster::UpdateRayset(const EntityLocation& loc)
 
 bool Raycaster::IsCellVis(int x, int y) const
 {
-    if (!WorldMap)
+    if (!WorldMap || x < 0 || x >= WorldMap->GetWidth() || y < 0 || y >= WorldMap->GetHeight())
         return false;
 
     int index = y * (int)WorldMap->GetWidth() + x;
@@ -239,7 +247,7 @@ bool Raycaster::IsCellVis(int x, int y) const
 
 void Raycaster::SetCellVis(int x, int y)
 {
-    if (!WorldMap)
+    if (!WorldMap || x < 0 || x >= WorldMap->GetWidth() || y < 0 || y >= WorldMap->GetHeight())
         return;
 
     int index = y * (int)WorldMap->GetWidth() + x;
