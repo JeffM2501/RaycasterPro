@@ -1,6 +1,7 @@
 #pragma once
 
-#include "raymath.h"
+#include "raylib.h"
+#include <corecrt_math.h>
 
 struct EntityLocation
 {

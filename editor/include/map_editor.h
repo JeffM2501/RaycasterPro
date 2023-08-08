@@ -3,6 +3,7 @@
 #include "map.h"
 #include "map_serializer.h"
 #include "tool_system.h"
+#include "entity_location.h"
 
 #include <string>
 #include <string_view>
@@ -72,6 +73,8 @@ public:
         return WorkingMap;
     }
 
+    inline EntityLocation& GetViewLocation() { return ViewLocaion; }
+
 protected:
     void FromMap();
     void ToMap();
@@ -90,4 +93,6 @@ protected:
 
     Map WorkingMap;
     bool MapValid = false;
+
+    EntityLocation ViewLocaion;
 };

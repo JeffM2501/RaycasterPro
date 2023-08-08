@@ -54,6 +54,13 @@ void EditorView::Show()
 		}
 	}
 
+	// draw view location
+	const auto& loc = Editor.GetViewLocation();
+	Vector2 mapLoc = Vector2Scale(loc.Position, renderSize);
+
+	DrawCircleV(mapLoc, renderSize / 3.0f, ColorAlpha(BLUE, 0.5f));
+	DrawLineEx(mapLoc, Vector2Add(mapLoc, Vector2Scale(loc.Facing, renderSize * 2)), 2, ColorAlpha(SKYBLUE, 0.75f));
+
 	DrawLineEx(Vector2{ -1, -1 }, Vector2{ renderSize, -1 }, 2, RED);
 	DrawLineEx(Vector2{ -1, -1 }, Vector2{ - 1, renderSize }, 2, GREEN);
 

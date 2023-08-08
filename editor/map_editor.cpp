@@ -12,6 +12,9 @@ void MapEditor::Update()
 
 void MapEditor::Clear()
 {
+	ViewLocaion.Position = Vector2{ 5, 5 };
+	ViewLocaion.Facing.x = 1;
+
 	EditHistoryIndex = 0;
 	EditHistory.clear();
 	EditHistory.emplace_back(HistoryState{ "New Map" });
@@ -130,7 +133,8 @@ void MapEditor::ToMap()
 
 void MapEditor::SaveState(std::string_view eventName)
 {
-	DirtyFlag = false;
+	DirtyFlag = true;
+	MapValid = false;
 
 	// copy our current state
 	HistoryState state = GetCurrentState();

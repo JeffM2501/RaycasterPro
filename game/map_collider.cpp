@@ -1,4 +1,5 @@
 #include "map_collider.h"
+#include "raymath.h"
 
 MapCollider::MapCollider(const Map& map)
 	: WorldMap(map)

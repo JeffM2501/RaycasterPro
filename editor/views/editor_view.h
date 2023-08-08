@@ -35,7 +35,6 @@ public:
 		return Rectangle{ float((tile-1) * MapTilesTexture.height), 0, float(MapTilesTexture.height), float(MapTilesTexture.height) };
 	}
 	
-
 protected:
 	MapEditor& Editor;
 
