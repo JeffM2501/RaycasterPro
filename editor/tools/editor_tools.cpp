@@ -15,7 +15,7 @@ EraserTool::EraserTool()
 
 void EraserTool::OnClick(const ImVec2& mapCoordinate)
 {
-    Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, 0);
+    Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, 0, EraseAction);
 }
 
 PaintWallTool::PaintWallTool()
@@ -26,7 +26,7 @@ PaintWallTool::PaintWallTool()
 
 void PaintWallTool::OnClick(const ImVec2& mapCoordinate)
 {
-    Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, Editor::GetActiveEditor().GetCurrentMaterial());
+    Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, Editor::GetActiveEditor().GetCurrentMaterial(), PaintWallAction);
 }
 
 PaintFloorTool::PaintFloorTool()

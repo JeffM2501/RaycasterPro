@@ -2,6 +2,9 @@
 
 #include "tool_system.h"
 
+constexpr int EraseAction = 1;
+constexpr int PaintWallAction = 2;
+
 class SelectTool : public ButtonTool
 {
 public:

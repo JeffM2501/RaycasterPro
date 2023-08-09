@@ -42,11 +42,11 @@ void EditorView::Show()
 
 	float renderSize = 32;
 
-	const HistoryState& currentState = Editor.GetCurrentState();
+	const auto& currentState = Editor.GetWorkingMap();
 
-	for (int y = 0; y < currentState.Size.y; y++)
+	for (int y = 0; y < currentState.GetHeight(); y++)
 	{
-		for (int x = 0; x < currentState.Size.x; x++)
+		for (int x = 0; x < currentState.GetWidth(); x++)
 		{
 			if (currentState.GetCellSolid(x, y) != 0)
 				DrawRectangleRec(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, WHITE);

@@ -24,8 +24,10 @@ public:
     Map(const std::vector<uint8_t>& cells, int width, int height);
 
     bool GetCellSolid(int x, int y) const;
+    void SetCellSolid(int x, int y, bool solid);
 
     uint8_t GetCellTile(int x, int y) const;
+    void SetCellTile(int x, int y, uint8_t tile);
 
     bool GetCellPassable(int x, int y) const;
 
@@ -47,6 +49,10 @@ public:
     {
         return Vector2i(int(index / Width), int(index % Width));
     }
+
+    inline std::vector<uint8_t>& GetCellsList() { return Cells; }
+
+    void Resize(int newWidth, int newHeight);
 
 protected:
     int Width = 0;

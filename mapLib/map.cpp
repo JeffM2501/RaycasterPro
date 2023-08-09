@@ -51,11 +51,35 @@ bool Map::GetCellSolid(int x, int y) const
     return Cells[index] != 0;
 }
 
+void Map::SetCellSolid(int x, int y, bool solid)
+{
+	if (x < 0 || x >= Width || y < 0 || y >= Height)
+		return;
+
+	int index = y * (int)Width + x;
+	if (index < 0 || index >= Cells.size())
+		return;
+
+	Cells[index] = solid ? 1 : 0;
+}
+
 uint8_t Map::GetCellTile(int x, int y) const
 {
     if (x < 0 || x >= Width || y < 0 || y >= Height)
         return 0;
     return Cells[y * (int)Width + x];
+}
+
+void Map::SetCellTile(int x, int y, uint8_t tile)
+{
+	if (x < 0 || x >= Width || y < 0 || y >= Height)
+		return;
+
+	int index = y * (int)Width + x;
+	if (index < 0 || index >= Cells.size())
+		return;
+
+	Cells[index] = tile;
 }
 
 bool Map::GetCellPassable(int x, int y) const
@@ -68,4 +92,11 @@ bool Map::GetCellPassable(int x, int y) const
         return false;
 
     return Cells[index] == 0;
+}
+
+void Map::Resize(int newWidth, int newHeight)
+{
+	Cells.resize(newWidth * newHeight);
+    Width = newWidth;
+	Height = newHeight;
 }

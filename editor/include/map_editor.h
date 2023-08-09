@@ -19,47 +19,70 @@ class HistoryState
 public:
     std::string EventName;
 
-	Vector2i Size;
-	std::vector<uint8_t> Cells;
+    Map Cells;
 
-    inline int GetCellIndex(const Vector2i& location) const { return location.y * int(Size.x) + location.x; }
-    inline int GetCellIndex(const int x, const int y) const { return y * int(Size.x) + x; }
+    int ToolId = -1;
 
-    inline bool GetCellSolid(const int x, const int y) const
-    {
-        if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
-            return false;
+    inline int GetWidth() const { return Cells.GetWidth(); }
+    inline int GetHeight() const { return Cells.GetHeight(); }
 
-        return Cells[y * int(Size.x) + x] != 0;
-    }
-
-    inline void SetCellState(const int x, const int y, CellState state, int tile = 1)
-    {
-        if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
-            return;
-
-        int index = y * int(Size.x) + x;
-
-        switch (state)
-        {
-        case CellState::Empty:
-            Cells[index] = 0;
-            break;
-        case CellState::Solid:
-            Cells[index] = tile;
-            break;
-        default:
-            break;
-        }
-    }
-
-    inline uint8_t GetCellTile(const int x, const int y) const
-    {
-        if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
-            return 0;
-
-        return Cells[y * int(Size.x) + x];
-    }
+	inline void SetCellState(const int x, const int y, CellState state, int tile = 1)
+	{
+		switch (state)
+		{
+			case CellState::Empty:
+				Cells.SetCellSolid(x,y, false);
+				break;
+			case CellState::Solid:
+                Cells.SetCellSolid(x, y, true);
+                Cells.SetCellTile(x, y, tile);
+				break;
+			default:
+				break;
+		}
+	}
+// 
+// 	Vector2i Size;
+// 	std::vector<uint8_t> Cells;
+// 
+//     inline int GetCellIndex(const Vector2i& location) const { return location.y * int(Size.x) + location.x; }
+//     inline int GetCellIndex(const int x, const int y) const { return y * int(Size.x) + x; }
+// 
+//     inline bool GetCellSolid(const int x, const int y) const
+//     {
+//         if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
+//             return false;
+// 
+//         return Cells[y * int(Size.x) + x] != 0;
+//     }
+// 
+//     inline void SetCellState(const int x, const int y, CellState state, int tile = 1)
+//     {
+//         if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
+//             return;
+// 
+//         int index = y * int(Size.x) + x;
+// 
+//         switch (state)
+//         {
+//         case CellState::Empty:
+//             Cells[index] = 0;
+//             break;
+//         case CellState::Solid:
+//             Cells[index] = tile;
+//             break;
+//         default:
+//             break;
+//         }
+//     }
+// 
+//     inline uint8_t GetCellTile(const int x, const int y) const
+//     {
+//         if (x < 0 || x >= Size.x || y < 0 || y >= Size.y)
+//             return 0;
+// 
+//         return Cells[y * int(Size.x) + x];
+//     }
 };
 
 class MapEditor
@@ -84,7 +107,7 @@ public:
 
     void Resize(int newX, int newY);
 
-    void SetCell(const Vector2i& loction, uint8_t cellType);
+    void SetCell(const Vector2i& loction, uint8_t cellType, int toolId = -1);
 
     std::string MapFilepath;
     bool Loaded = false;
@@ -101,19 +124,13 @@ public:
 
     inline const Map& GetWorkingMap() 
     { 
-        if (!MapValid)
-            ToMap();
-        MapValid = true;
-        return WorkingMap;
+        return EditHistory[EditHistoryIndex].Cells;
     }
 
     inline EntityLocation& GetViewLocation() { return ViewLocaion; }
 
 protected:
-    void FromMap();
-    void ToMap();
-
-    void SaveState(std::string_view eventName);
+    void SaveState(std::string_view eventName, int toolId = -1);
 
     inline void SetDirty() { DirtyFlag = true; }
 
@@ -124,9 +141,6 @@ protected:
     int CurrentMaterial = 1;
 
     ToolSystem ToolManager;
-
-    Map WorkingMap;
-    bool MapValid = false;
 
     EntityLocation ViewLocaion;
 };

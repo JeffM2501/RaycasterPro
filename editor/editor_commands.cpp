@@ -192,7 +192,9 @@ void ResizeCommand::Process()
         delete(size);
 	};
 
-    Vector2i* size = new Vector2i(Editor::GetActiveEditor().GetCurrentState().Size);
+    auto& state = Editor::GetActiveEditor().GetCurrentState();
+
+    Vector2i* size = new Vector2i(state.GetWidth(), state.GetHeight());
 
     ImGui::CallbackDialog* dialog = ImGui::CallbackDialog::Show("New Size", ICON_FA_BOX, onShow, onResult, size);
 }
