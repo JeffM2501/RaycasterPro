@@ -21,12 +21,22 @@ enum class CellState : uint8_t
 {
 	Empty = 0,
 	Solid = 1,
+    Door = 2,
+};
+
+enum class DoorFlags : uint8_t
+{
+    None = 0,
+    YOrient = 0x01,
+    SplitOpen = 0x02,
+    PosOpen = 0x04,
 };
 
 struct MapCell
 {
     CellState State = CellState::Empty;
     uint8_t Tile = 1;
+    uint8_t Flags = 0;
 };
 
 class Map
@@ -39,6 +49,9 @@ public:
 
     uint8_t GetCellTile(int x, int y) const;
     void SetCellTile(int x, int y, uint8_t tile);
+
+	uint8_t GetCellFlags(int x, int y) const;
+	void SetCellFlags(int x, int y, uint8_t flags);
 
     bool GetCellPassable(int x, int y) const;
 

@@ -51,6 +51,25 @@ void Map::SetCellTile(int x, int y, uint8_t tile)
 	Cells[index].Tile = tile;
 }
 
+uint8_t Map::GetCellFlags(int x, int y) const
+{
+	if (x < 0 || x >= Width || y < 0 || y >= Height)
+		return 0;
+	return Cells[y * (int)Width + x].Flags;
+}
+
+void Map::SetCellFlags(int x, int y, uint8_t flag)
+{
+	if (x < 0 || x >= Width || y < 0 || y >= Height)
+		return;
+
+	int index = y * (int)Width + x;
+	if (index < 0 || index >= Cells.size())
+		return;
+
+	Cells[index].Flags = flag;
+}
+
 bool Map::GetCellPassable(int x, int y) const
 {
     if (x < 0 || x >= Width || y < 0 || y >= Height)

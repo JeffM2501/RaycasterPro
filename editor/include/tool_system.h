@@ -6,13 +6,15 @@
 #include "imgui.h"
 #include "extras/IconsFontAwesome6.h"
 
+struct Vector2;
+
 class Tool
 {
 public:
     virtual ~Tool() = default;
     inline virtual void Show(bool isActve) = 0;
-    inline virtual void OnClick(const ImVec2& position) {}
-    inline virtual void OnHover(const ImVec2& position) {}
+    inline virtual void OnClick(const Vector2& position) {}
+    inline virtual void OnHover(const Vector2& position) {}
 
 protected:
     friend class ToolSystem;

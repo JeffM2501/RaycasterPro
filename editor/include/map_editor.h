@@ -60,6 +60,10 @@ public:
     void Resize(int newX, int newY);
 
     void SetCell(const Vector2i& loction, uint8_t cellType, int toolId = -1);
+    inline void SetCell(const Vector2& loction, uint8_t cellType, int toolId = -1)
+    {
+        SetCell(Vector2i{ int(floorf(loction.x)),int(floorf(loction.y)) }, cellType, toolId);
+    }
 
     std::string MapFilepath;
     bool Loaded = false;

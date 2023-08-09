@@ -16,14 +16,14 @@ class EraserTool : public ButtonTool
 public:
     EraserTool();
 
-    void OnClick(const ImVec2& mapCoordinate) override;
+    void OnClick(const Vector2& mapCoordinate) override;
 };
 
 class PaintWallTool : public ButtonTool
 {
 public:
     PaintWallTool();
-    void OnClick(const ImVec2& mapCoordinate) override;
+    void OnClick(const Vector2& mapCoordinate) override;
 };
 
 class PaintFloorTool : public ButtonTool
@@ -42,6 +42,7 @@ class SetDoorTool : public ButtonTool
 {
 public:
     SetDoorTool();
+    void OnClick(const Vector2& mapCoordinate) override;
 };
 
 class SetObjectTool : public ButtonTool

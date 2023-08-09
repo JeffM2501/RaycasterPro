@@ -25,7 +25,7 @@ void EditorView::Show()
     mousePos.y = GetScreenHeight() - mousePos.y;
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePos, ViewCamea);
 
-	ImVec2 mouseMapPos(mouseWorldPos.x / CellRenderSize, mouseWorldPos.y / CellRenderSize);
+	Vector2 mouseMapPos = { mouseWorldPos.x / CellRenderSize, mouseWorldPos.y / CellRenderSize };
 
 	if (HasFocus)
 	{

@@ -1,5 +1,6 @@
 #include "tools/editor_tools.h"
 #include "editor.h"
+#include "raylib.h"
 
 SelectTool::SelectTool()
 {
@@ -13,7 +14,7 @@ EraserTool::EraserTool()
     ToolTip = "Erase";
 }
 
-void EraserTool::OnClick(const ImVec2& mapCoordinate)
+void EraserTool::OnClick(const Vector2& mapCoordinate)
 {
     Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, 0, EraseAction);
 }
@@ -24,7 +25,7 @@ PaintWallTool::PaintWallTool()
     ToolTip = "Paint Walls";
 }
 
-void PaintWallTool::OnClick(const ImVec2& mapCoordinate)
+void PaintWallTool::OnClick(const Vector2& mapCoordinate)
 {
     Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, Editor::GetActiveEditor().GetCurrentMaterial(), PaintWallAction);
 }
@@ -45,6 +46,16 @@ SetDoorTool::SetDoorTool()
 {
     Icon = ICON_FA_DOOR_OPEN;
     ToolTip = "Set Door";
+}
+
+void SetDoorTool::OnClick(const Vector2& mapCoordinate)
+{
+    if (!IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        return;
+
+    auto& editor = Editor::GetActiveEditor();
+
+
 }
 
 SetObjectTool::SetObjectTool()
