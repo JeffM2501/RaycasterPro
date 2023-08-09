@@ -1,8 +1,8 @@
 #include "map_serializer.h"
 
-constexpr int CurrentMapVersion = 1;
+constexpr int CurrentMapVersion = 2;
 
-bool MapSerializer::WriteResource(const Map& map, std::string_view filepath)
+bool MapSerializer::WriteResource(Map& map, std::string_view filepath)
 {
     FILE* fp = fopen(filepath.data(), "w");
 
@@ -25,7 +25,11 @@ bool MapSerializer::WriteResource(const Map& map, std::string_view filepath)
 
     if (valid)
     {
-        fwrite(&map.GetCells()[0], xSize*ySize, 1, fp);
+        for (auto& cell : map.GetCellsList())
+        {
+            fwrite(&cell.State, 1, 1, fp);
+            fwrite(&cell.Tile, 1, 1, fp);
+        }
     }
 
     fclose(fp);
@@ -34,10 +38,12 @@ bool MapSerializer::WriteResource(const Map& map, std::string_view filepath)
 
 Map MapSerializer::ReadResource(std::string_view filepath)
 {
+    Map map;
+
     FILE* fp = fopen(filepath.data(), "r");
 
     if (!fp)
-        return Map();
+        return map;
 
     bool valid = true;
 
@@ -45,35 +51,62 @@ Map MapSerializer::ReadResource(std::string_view filepath)
     fread(&version, 4, 1, fp);
     switch (version)
     {
-    default:
-        valid = false;
-        break;
+		default:
+			valid = false;
+			break;
 
         // other versions here
 
-    case CurrentMapVersion:
+		case 1:
+        {
+			int xSize = 0;
+			int ySize = 0;
+
+			if (fread(&xSize, 4, 1, fp) != 1 || fread(&ySize, 4, 1, fp) != 1)
+				valid = false;
+
+			if (xSize == 0 || ySize == 0)
+				valid = false;
+
+			std::vector<uint8_t> cells;
+			if (valid)
+			{
+				map.GetCellsList().resize(xSize * ySize);
+				for (auto& cell : map.GetCellsList())
+				{
+					fread(&cell.Tile, 1, 1, fp);
+                    cell.State = cell.Tile == 0 ? CellState::Empty : CellState::Solid;
+				}
+			}
+        }
+		break;
+
+        case CurrentMapVersion:
+        {
+			int xSize = 0;
+			int ySize = 0;
+
+			if (fread(&xSize, 4, 1, fp) != 1 || fread(&ySize, 4, 1, fp) != 1)
+				valid = false;
+
+			if (xSize == 0 || ySize == 0)
+				valid = false;
+
+			std::vector<uint8_t> cells;
+			if (valid)
+			{
+				map.GetCellsList().resize(xSize * ySize);
+				for (auto& cell : map.GetCellsList())
+				{
+					fread(&cell.State, 1, 1, fp);
+					fread(&cell.Tile, 1, 1, fp);
+				}
+			}
+        }
         break;
     }
-
-    int xSize = 0;
-    int ySize = 0;
-
-    if (fread(&xSize, 4, 1, fp) != 1 || fread(&ySize, 4, 1, fp) != 1)
-        valid = false;
-
-    if (xSize == 0 || ySize == 0)
-        valid = false;
-
-    std::vector<uint8_t> cells;
-    if (valid)
-    {
-        cells.resize(xSize * ySize);
-        fread(&cells[0], xSize * ySize, 1, fp);
-    }
+    
     fclose(fp);
 
-    if (!valid)
-        return Map();
-
-    return Map(cells, xSize, ySize);
+    return map;
 }

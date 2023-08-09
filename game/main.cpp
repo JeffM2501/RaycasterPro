@@ -126,7 +126,7 @@ void UpdateMovement(MapCollider& collider)
         rotation -= rotationSpeed;
 
     if (!UseButtonForMouse || IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-        rotation -= GetMouseDelta().x / (GetScreenWidth()/4.0f);
+        rotation -= GetMouseDelta().x / (GetScreenWidth()/16.0f);
 
     // rotate the player and the camera plane
     Player.Facing = Vector2Rotate(Player.Facing, rotation);

@@ -17,11 +17,22 @@ struct Vector2i
     }
 };
 
+enum class CellState : uint8_t
+{
+	Empty = 0,
+	Solid = 1,
+};
+
+struct MapCell
+{
+    CellState State = CellState::Empty;
+    uint8_t Tile = 1;
+};
+
 class Map
 {
 public:
     Map();
-    Map(const std::vector<uint8_t>& cells, int width, int height);
 
     bool GetCellSolid(int x, int y) const;
     void SetCellSolid(int x, int y, bool solid);
@@ -37,8 +48,6 @@ public:
     inline int GetCellIndex(int x, int y) const { return y * int(Width) + x; }
     inline int GetCellIndex(const Vector2i& location) const { return location.y * int(Width) + location.x; }
 
-    inline const std::vector<uint8_t>& GetCells() const { return Cells; }
-
     inline void GetCellXY(size_t index, int& x, int& y) const
     {
         y = int(index / Width);
@@ -50,12 +59,13 @@ public:
         return Vector2i(int(index / Width), int(index % Width));
     }
 
-    inline std::vector<uint8_t>& GetCellsList() { return Cells; }
+    inline std::vector<MapCell>& GetCellsList() { return Cells; }
 
     void Resize(int newWidth, int newHeight);
 
 protected:
+
     int Width = 0;
     int Height = 0;
-    std::vector<uint8_t> Cells;
+    std::vector<MapCell> Cells;
 };

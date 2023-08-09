@@ -127,7 +127,10 @@ void Raycaster::CastRay(RayResult& ray, const Vector2& pos)
         if (mapX >= WorldMap->GetWidth() || mapX < 0 || mapY >= WorldMap->GetHeight() || mapY < 0)
             break;
 
-        ray.HitGridType = WorldMap->GetCellTile(mapX, mapY);
+        ray.HitGridType = 0;
+        if (WorldMap->GetCellSolid(mapX,mapY))
+            ray.HitGridType = WorldMap->GetCellTile(mapX, mapY);
+
         ray.HitCellIndex = WorldMap->GetCellIndex(mapX, mapY);
         ray.TargetCell.x = mapX;
         ray.TargetCell.y = mapY;
