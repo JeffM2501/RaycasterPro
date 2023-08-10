@@ -59,10 +59,14 @@ public:
 
     void Resize(int newX, int newY);
 
-    void SetCell(const Vector2i& loction, uint8_t cellType, int toolId = -1);
-    inline void SetCell(const Vector2& loction, uint8_t cellType, int toolId = -1)
+    void SetCell(int x, int y, CellState cellState, uint8_t cellTile, int toolId = -1);
+    inline void SetCell(const Vector2i& loction, CellState cellState, uint8_t cellType, int toolId = -1)
     {
-        SetCell(Vector2i{ int(floorf(loction.x)),int(floorf(loction.y)) }, cellType, toolId);
+        SetCell(loction.x, loction.y, cellState, cellType, toolId);
+    }
+    inline void SetCell(const Vector2& loction, CellState cellState, uint8_t cellType, int toolId = -1)
+    {
+        SetCell(Vector2i{ int(floorf(loction.x)),int(floorf(loction.y)) }, cellState, cellType, toolId);
     }
 
     std::string MapFilepath;

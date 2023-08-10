@@ -16,7 +16,7 @@ EraserTool::EraserTool()
 
 void EraserTool::OnClick(const Vector2& mapCoordinate)
 {
-    Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, 0, EraseAction);
+    Editor::GetActiveEditor().SetCell(mapCoordinate, CellState::Empty, 0, EraseAction);
 }
 
 PaintWallTool::PaintWallTool()
@@ -27,7 +27,7 @@ PaintWallTool::PaintWallTool()
 
 void PaintWallTool::OnClick(const Vector2& mapCoordinate)
 {
-    Editor::GetActiveEditor().SetCell(Vector2i{ int(floorf(mapCoordinate.x)),int(floorf(mapCoordinate.y)) }, Editor::GetActiveEditor().GetCurrentMaterial(), PaintWallAction);
+    Editor::GetActiveEditor().SetCell(mapCoordinate, CellState::Solid, Editor::GetActiveEditor().GetCurrentMaterial(), PaintWallAction);
 }
 
 PaintFloorTool::PaintFloorTool()
@@ -55,7 +55,9 @@ void SetDoorTool::OnClick(const Vector2& mapCoordinate)
 
     auto& editor = Editor::GetActiveEditor();
 
+    Editor::GetActiveEditor().SetCell(mapCoordinate, CellState::Door, Editor::GetActiveEditor().GetCurrentMaterial(), PaintWallAction);
 
+    // set current cell in inspector
 }
 
 SetObjectTool::SetObjectTool()

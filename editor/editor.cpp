@@ -95,7 +95,12 @@ namespace Editor
 
 				ImGui::EndMenu();
 			}
+            if (ImGui::BeginMenu("Tools"))
+            {
+                EditorCommands::Border.Menu();
 
+                ImGui::EndMenu();
+            }
 			if (ImGui::BeginMenu("Window"))
 			{
                 for (auto* panel : Panels)

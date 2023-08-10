@@ -4,6 +4,7 @@
 
 constexpr int EraseAction = 1;
 constexpr int PaintWallAction = 2;
+constexpr int BorderWallAction = 3;
 
 class SelectTool : public ButtonTool
 {

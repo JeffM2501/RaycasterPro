@@ -67,6 +67,13 @@ public:
     void Process() override;
 };
 
+class BorderCommand : public EditorCommand
+{
+public:
+    BorderCommand();
+    void Process() override;
+};
+
 namespace EditorCommands
 {
     extern QuitCommand Quit;
@@ -79,6 +86,7 @@ namespace EditorCommands
     extern RedoCommand Redo;
 
     extern ResizeCommand Resize;
+    extern BorderCommand Border;
 
     CommandSet& GetCommandSet();
 }

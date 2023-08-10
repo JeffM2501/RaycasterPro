@@ -18,6 +18,22 @@ void MapEditor::Clear()
 	EditHistoryIndex = 0;
 	EditHistory.clear();
 	EditHistory.emplace_back(HistoryState{ "New Map" });
+
+	auto& state = EditHistory.back();
+
+    uint8_t tile = GetCurrentMaterial();
+
+    for (int i = 0; i < state.GetWidth(); i++)
+    {
+        state.SetCellState(i, 0, CellState::Solid, tile);
+        state.SetCellState(i, state.GetHeight() - 1, CellState::Solid, tile);
+    }
+
+    for (int i = 0; i < state.GetHeight(); i++)
+    {
+        state.SetCellState(0, i, CellState::Solid, tile);
+        state.SetCellState(state.GetWidth()-1, i, CellState::Solid, tile);
+    }
 }
 
 void MapEditor::Load(std::string_view filepath)
@@ -47,13 +63,13 @@ HistoryState& MapEditor::GetCurrentState()
 	return EditHistory[EditHistoryIndex];
 }
 
-void MapEditor::SetCell(const Vector2i& location, uint8_t cellType, int toolId)
+void MapEditor::SetCell(int x, int y, CellState cellState, uint8_t cellTile, int toolId)
 {
-	if (location.x < 0 || location.x >= GetCurrentState().Cells.GetWidth() || location.y < 0 || location.y > GetCurrentState().Cells.GetHeight())
+	if (x < 0 || x >= GetCurrentState().Cells.GetWidth() || y < 0 || y > GetCurrentState().Cells.GetHeight())
 		return;
 
 	SaveState("Set Cell", toolId);
-	GetCurrentState().SetCellState(location.x, location.y, cellType == 0 ? CellState::Empty : CellState::Solid, cellType);
+	GetCurrentState().SetCellState(x, y, cellState, cellTile);
 }
 
 void MapEditor::Resize(int newX, int newY)

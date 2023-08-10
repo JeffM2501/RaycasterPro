@@ -2,7 +2,7 @@
 
 #include "editor.h"
 #include "map_editor.h"
-
+#include "tools/editor_tools.h"
 #include "tinyfiledialogs.h"
 #include "utils/imgui_dialogs.h"
 
@@ -25,6 +25,7 @@ namespace EditorCommands
 	UndoCommand Undo;
 	RedoCommand Redo;
     ResizeCommand Resize;
+    BorderCommand Border;
 }
 
 EditorCommand::EditorCommand()
@@ -197,4 +198,33 @@ void ResizeCommand::Process()
     Vector2i* size = new Vector2i(state.GetWidth(), state.GetHeight());
 
     ImGui::CallbackDialog* dialog = ImGui::CallbackDialog::Show("New Size", ICON_FA_BOX, onShow, onResult, size);
+}
+
+
+BorderCommand::BorderCommand()
+{
+    Name = "Border";
+    Icon = ICON_FA_SQUARE;
+}
+
+void BorderCommand::Process()
+{
+    auto& editor = Editor::GetActiveEditor();
+
+    int width = editor.GetCurrentState().GetWidth();
+    int height = editor.GetCurrentState().GetHeight();
+
+    uint8_t tile = editor.GetCurrentMaterial();
+
+    for (int i = 0; i < width; i++)
+    {
+        editor.SetCell(i, 0, tile, BorderWallAction);
+        editor.SetCell(i, height-1, tile, BorderWallAction);
+    }
+
+    for (int i = 0; i < height; i++)
+    {
+        editor.SetCell(0, i, tile, BorderWallAction);
+        editor.SetCell(width-1, i, tile, BorderWallAction);
+    }
 }
