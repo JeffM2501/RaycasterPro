@@ -45,7 +45,7 @@ public:
     Map();
 
     bool GetCellSolid(int x, int y) const;
-    void SetCellSolid(int x, int y, bool solid);
+    void SetCellState(int x, int y, CellState state);
 
     uint8_t GetCellTile(int x, int y) const;
     void SetCellTile(int x, int y, uint8_t tile);

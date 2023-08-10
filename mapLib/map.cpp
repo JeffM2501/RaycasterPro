@@ -19,7 +19,7 @@ bool Map::GetCellSolid(int x, int y) const
     return Cells[index].State != CellState::Empty;
 }
 
-void Map::SetCellSolid(int x, int y, bool solid)
+void Map::SetCellState(int x, int y, CellState state)
 {
 	if (x < 0 || x >= Width || y < 0 || y >= Height)
 		return;
@@ -28,7 +28,7 @@ void Map::SetCellSolid(int x, int y, bool solid)
 	if (index < 0 || index >= Cells.size())
 		return;
 
-	Cells[index].State = solid ? CellState::Solid : CellState::Empty;
+	Cells[index].State = state;
 }
 
 uint8_t Map::GetCellTile(int x, int y) const

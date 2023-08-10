@@ -218,13 +218,13 @@ void BorderCommand::Process()
 
     for (int i = 0; i < width; i++)
     {
-        editor.SetCell(i, 0, tile, BorderWallAction);
-        editor.SetCell(i, height-1, tile, BorderWallAction);
+        editor.SetCell(i, 0, CellState::Solid, tile, BorderWallAction);
+        editor.SetCell(i, height-1, CellState::Solid, tile, BorderWallAction);
     }
 
     for (int i = 0; i < height; i++)
     {
-        editor.SetCell(0, i, tile, BorderWallAction);
-        editor.SetCell(width-1, i, tile, BorderWallAction);
+        editor.SetCell(0, i, CellState::Solid, tile, BorderWallAction);
+        editor.SetCell(width-1, i, CellState::Solid, tile, BorderWallAction);
     }
 }
