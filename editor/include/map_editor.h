@@ -22,13 +22,10 @@ public:
 
 	inline void SetCellState(const int x, const int y, CellState state, int tile = 1)
 	{
+        Cells.SetCellState(x, y, state);
 		switch (state)
 		{
-			case CellState::Empty:
-				Cells.SetCellSolid(x,y, false);
-				break;
-			case CellState::Solid:
-                Cells.SetCellSolid(x, y, true);
+			case CellState::Door:
                 Cells.SetCellTile(x, y, tile);
 				break;
 			default:
