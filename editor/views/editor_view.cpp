@@ -9,6 +9,12 @@ EditorView::EditorView(MapEditor& editor)
 	: Editor(editor)
 {
 	ViewCamea.zoom = 1;
+
+	ViewCamea.offset.x = GetScreenWidth() * 0.5f;
+	ViewCamea.offset.y = GetScreenHeight() * 0.5f;
+
+	ViewCamea.target.x = -editor.GetWorkingMap().GetWidth() / 2 * CellRenderSize;
+
 }
 
 void EditorView::Shutdown()
@@ -40,7 +46,7 @@ void EditorView::Show()
 
 	BeginMode2D(ViewCamea);
 
-	float renderSize = 32;
+	
 
 	const auto& currentState = Editor.GetWorkingMap();
 
@@ -49,22 +55,22 @@ void EditorView::Show()
 		for (int x = 0; x < currentState.GetWidth(); x++)
 		{
 			if (currentState.GetCellSolid(x, y))
-				DrawRectangleRec(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, WHITE);
-			DrawRectangleLinesEx(Rectangle{ x * renderSize, y * renderSize, renderSize, renderSize }, 1, BLACK);
+				DrawRectangleRec(Rectangle{ x * CellRenderSize, y * CellRenderSize, CellRenderSize, CellRenderSize }, WHITE);
+			DrawRectangleLinesEx(Rectangle{ x * CellRenderSize, y * CellRenderSize, CellRenderSize, CellRenderSize }, 1, BLACK);
 		}
 	}
 
 	// draw view location
 	const auto& loc = Editor.GetViewLocation();
-	Vector2 mapLoc = Vector2Scale(loc.Position, renderSize);
+	Vector2 mapLoc = Vector2Scale(loc.Position, CellRenderSize);
 
-	DrawCircleV(mapLoc, renderSize / 3.0f, ColorAlpha(BLUE, 0.5f));
-	DrawLineEx(mapLoc, Vector2Add(mapLoc, Vector2Scale(loc.Facing, renderSize * 2)), 2, ColorAlpha(SKYBLUE, 0.75f));
+	DrawCircleV(mapLoc, CellRenderSize / 3.0f, ColorAlpha(BLUE, 0.5f));
+	DrawLineEx(mapLoc, Vector2Add(mapLoc, Vector2Scale(loc.Facing, CellRenderSize * 2)), 2, ColorAlpha(SKYBLUE, 0.75f));
 
-	DrawLineEx(Vector2{ -1, -1 }, Vector2{ renderSize, -1 }, 2, RED);
-	DrawLineEx(Vector2{ -1, -1 }, Vector2{ - 1, renderSize }, 2, GREEN);
+	DrawLineEx(Vector2{ -1, -1 }, Vector2{ CellRenderSize, -1 }, 2, RED);
+	DrawLineEx(Vector2{ -1, -1 }, Vector2{ - 1, CellRenderSize }, 2, GREEN);
 
-	DrawRectangleRec(Rectangle{ HoveredCell.x * renderSize, HoveredCell.y * renderSize, renderSize, renderSize }, ColorAlpha(YELLOW, 0.25f));
+	DrawRectangleRec(Rectangle{ HoveredCell.x * CellRenderSize, HoveredCell.y * CellRenderSize, CellRenderSize, CellRenderSize }, ColorAlpha(YELLOW, 0.25f));
 
 	EndMode2D();
 
