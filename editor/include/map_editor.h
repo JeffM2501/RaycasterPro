@@ -25,7 +25,8 @@ public:
         Cells.SetCellState(x, y, state);
 		switch (state)
 		{
-			case CellState::Door:
+        case CellState::Solid:
+        case CellState::Door:
                 Cells.SetCellTile(x, y, tile);
 				break;
 			default:
